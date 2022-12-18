@@ -2,11 +2,13 @@ package com.mygdx.game;
 
 import Types.ActionType;
 import Types.BlockType;
+import Types.Direction;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import util.ForceTable;
+import util.PhysicsTable;
 import util.Moment;
 
+import static util.utilMethods.getCharacter;
 import static util.utilMethods.set;
 
 public class Action {
@@ -16,6 +18,16 @@ BlockType blockType=BlockType.FREE;
 ActionType type;
 Moment startTime;
 float duration;
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    Direction direction;
 
 
 
@@ -34,11 +46,14 @@ float duration;
     }
 
     private void myjump() {
-        actor.applyForce(set(ForceTable.jumpForce),actor.getWorldCenter(),true);
+        actor.applyLinearImpulse(PhysicsTable.jumpForce,actor.getWorldCenter(),true);
     }
 
     private void mymove() {
-
+        switch (direction){
+            case LEFT: actor.applyLinearImpulse(PhysicsTable.walkingSpeedLeft,actor.getWorldCenter(),true);break;
+            case RIGHT: actor.applyLinearImpulse(PhysicsTable.walkingSpeedRight,actor.getWorldCenter(),true);break;
+        }
     }
 
     private void setDuration(){
@@ -54,7 +69,7 @@ float duration;
         action.type=type;
         action.actor=actor;
         action.setBlockType();
-        action.isBlocked();
+        //action.isBlocked();
         action.setDuration();
 
         return action;
@@ -78,11 +93,9 @@ float duration;
     }
 
 
-    static Action createAction(ActionType type, Body actor, Vector2 vector2){
-        Action action=new Action();
-        action.type=type;
-        action.actor=actor;
-
+    static Action createAction(ActionType type, Body actor, Direction direction){
+      Action action=createAction(type,actor);
+        action.setDirection(direction);
         return action;
     }
     public  void link(){

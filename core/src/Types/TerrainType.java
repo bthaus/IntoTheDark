@@ -2,6 +2,7 @@ package Types;
 
 public enum TerrainType {
    SKY,BACKGROUND;
+
     enum Floor{
         ICE,NORMAL,SPIKY,STICKY
     }
