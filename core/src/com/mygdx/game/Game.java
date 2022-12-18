@@ -43,6 +43,7 @@ public class Game extends ApplicationAdapter {
 	private OrthographicCamera camera;
 	@Override
 	public void create () {
+
 		batch = new SpriteBatch();
 		heroImage= new Texture(Gdx.files.internal("hero.png"));
 		enemyImage=new Texture(Gdx.files.internal("enemy1.png"));
@@ -61,13 +62,13 @@ public class Game extends ApplicationAdapter {
 		Body ground=world.createBody(groundBodyDef);
 
 		PolygonShape groundbox=new PolygonShape();
-		groundbox.setAsBox(50.0f, 10.0f);
+		groundbox.setAsBox(5000.0f, 10.0f);
 		ground.createFixture(groundbox, 0.0f);
 
 
 		BodyDef bodyDef=new BodyDef();
 		bodyDef.type= BodyDef.BodyType.DynamicBody;
-		bodyDef.position.set(100f, 500.0f);
+		bodyDef.position.set(10, 20);
 		body= world.createBody(bodyDef);
 		PolygonShape dynamic=new PolygonShape();
 		dynamic.setAsBox(1.0f, 1.0f);
@@ -179,7 +180,8 @@ boolean alive=true;
 	private void getHeroInput() {
 
 		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-			body.localVector.y+=50;
+			System.out.println("jump");
+			body.applyForce(new Vector2(0,10000),body.getWorldCenter(),true);
 		}
 
 		if(Gdx.input.isKeyPressed(Input.Keys.A)){
