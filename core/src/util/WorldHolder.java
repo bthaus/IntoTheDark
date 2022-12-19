@@ -6,7 +6,6 @@ import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.mygdx.game.Character;
 
@@ -35,12 +34,46 @@ public class WorldHolder {
         rayHandler.setAmbientLight(new Color(.1f, .1f, .1f, .5f));
         rayHandler.useDiffuseLight(true);
         rayHandler.setShadows(true);
-        setDefauktListeners();
+        setDefaultListeners();
 
 
 
     }
-    public void setDefauktListeners(){
+    public void setDefaultListeners(){
+        world.setContactListener(new ContactListener() {
+            Character charA;
+            Character charB;
+            Body bodyA;
+            Body bodyB;
+
+            @Override
+            public void beginContact(Contact contact) {
+                bodyA = contact.getFixtureA().getBody();
+                bodyB = contact.getFixtureB().getBody();
+                charA=getCharacter(bodyA);
+                charB=getCharacter(bodyB);
+                charA.collidedWith(bodyB);
+                charB.collidedWith(bodyA);
+            }
+
+            @Override
+            public void endContact(Contact contact) {
+                charA.uncollidedWith(bodyB);
+                charB.uncollidedWith(bodyA);
+            }
+
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold) {
+
+            }
+
+            @Override
+            public void postSolve(Contact contact, ContactImpulse impulse) {
+
+            }
+        });
+        //legacy test contaclisteener
+        /*
         world.setContactListener(new ContactListener() {
             boolean relevant=false;
             boolean heroA=false;
@@ -99,5 +132,10 @@ public class WorldHolder {
 
             }
         });
+        */
+    }
+
+    public void addCustomListener(ContactListener contactListener){
+        world.setContactListener(contactListener);
     }
 }

@@ -46,6 +46,7 @@ float duration;
     }
 
     private void myjump() {
+        System.out.println(getCharacter(actor).isCanJump());
         if(getCharacter(actor).isCanJump()){
             actor.applyLinearImpulse(PhysicsTable.jumpForce,actor.getWorldCenter(),true);
             getCharacter(actor).setCanJump(false);

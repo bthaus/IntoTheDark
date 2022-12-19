@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import Handler.TerrainCollisionHandler;
 import Types.ActionType;
 import Types.Direction;
 import Types.TerrainType;
@@ -39,6 +40,25 @@ public class Universe {
 
     private void debuginit() {
         hero= addEntity(100,100,250,250,UnitType.HERO,"hero");
+        heroChar=getCharacter(hero);
+        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                Character temp=getCharacter(a);
+                if(temp.getTerrainType().equals(TerrainType.FLOOR)){
+                    heroChar.setCanJump(true);
+                }
+            }
+
+            @Override
+            public void detachFrom(Body a) {
+                Character temp=getCharacter(a);
+                if(temp.getTerrainType().equals(TerrainType.FLOOR)){
+                    heroChar.setCanJump(false);
+                }
+
+            }
+        });
 
        addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
        addObject(600,0,100,500,0,TerrainType.FLOOR,"floor1");
@@ -145,6 +165,7 @@ public class Universe {
         Texture text=new Texture(Gdx.files.internal(texture.concat(".png")));
         chara.setTexture(text);
         chara.setTerrainType(type);
+
         ground.setUserData(chara);
         return ground;
     }
