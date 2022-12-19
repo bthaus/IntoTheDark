@@ -1,10 +1,7 @@
 package com.mygdx.game;
 
 import Handler.TerrainCollisionHandler;
-import Types.ActionType;
-import Types.Direction;
-import Types.TerrainType;
-import Types.UnitType;
+import Types.*;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
@@ -25,6 +22,7 @@ public class Universe {
     WorldHolder holder;
     Body hero;
     Character heroChar;
+    int checksum=0;
 
 
 
@@ -39,33 +37,51 @@ public class Universe {
     }
 
     private void debuginit() {
-        hero= addEntity(100,100,250,250,UnitType.HERO,"hero");
+        hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
+
             @Override
             public void collideWith(Body a) {
                 Character temp=getCharacter(a);
+
                 if(temp.getTerrainType().equals(TerrainType.FLOOR)){
-                    heroChar.setCanJump(true);
+
+                    heroChar.addContact(a);
+
                 }
             }
 
             @Override
             public void detachFrom(Body a) {
+
                 Character temp=getCharacter(a);
                 if(temp.getTerrainType().equals(TerrainType.FLOOR)){
-                    heroChar.setCanJump(false);
+                    heroChar.decrContacts(a);
+
                 }
 
             }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.TOUCHFLOOR;
+            }
+
+            @Override
+            public void setTypeCombination() {
+                global.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
+            }
         });
 
+
        addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
-       addObject(600,0,100,500,0,TerrainType.FLOOR,"floor1");
+       addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
     }
 
 
     public void getUserInput(){
+
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
             Action.createAction(ActionType.JUMP,hero).link();
@@ -145,7 +161,7 @@ public class Universe {
 
 
         Texture text=new Texture(Gdx.files.internal(texture.concat(".png")));
-        Character character=new Character();
+        Character character=new Character(body);
         character.setTexture(text);
         character.setUnitType(type);
         body.setUserData(character);
@@ -161,7 +177,7 @@ public class Universe {
         PolygonShape groundbox=new PolygonShape();
         groundbox.setAsBox(set(width),set(height));
         ground.createFixture(groundbox, density);
-        Character chara=new Character();
+        Character chara=new Character(ground);
         Texture text=new Texture(Gdx.files.internal(texture.concat(".png")));
         chara.setTexture(text);
         chara.setTerrainType(type);

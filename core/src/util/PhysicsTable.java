@@ -3,7 +3,7 @@ package util;
 import com.badlogic.gdx.math.Vector2;
 
 public class PhysicsTable {
-    public static Vector2 jumpForce=new Vector2(0,500);
+    public static Vector2 jumpForce=new Vector2(0,250);
     public static Vector2 walkingSpeedLeft=new Vector2(-10,0);
     public static Vector2 walkingSpeedRight=new Vector2(10,0);
     private static float density=1;

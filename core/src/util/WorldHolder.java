@@ -41,23 +41,24 @@ public class WorldHolder {
     }
     public void setDefaultListeners(){
         world.setContactListener(new ContactListener() {
-            Character charA;
-            Character charB;
-            Body bodyA;
-            Body bodyB;
+
 
             @Override
             public void beginContact(Contact contact) {
-                bodyA = contact.getFixtureA().getBody();
-                bodyB = contact.getFixtureB().getBody();
-                charA=getCharacter(bodyA);
-                charB=getCharacter(bodyB);
+                Body bodyA = contact.getFixtureA().getBody();
+                Body bodyB = contact.getFixtureB().getBody();
+                Character charA = getCharacter(bodyA);
+                Character charB = getCharacter(bodyB);
                 charA.collidedWith(bodyB);
                 charB.collidedWith(bodyA);
             }
 
             @Override
             public void endContact(Contact contact) {
+                Body bodyA = contact.getFixtureA().getBody();
+                Body bodyB = contact.getFixtureB().getBody();
+                Character charA = getCharacter(bodyA);
+                Character charB = getCharacter(bodyB);
                 charA.uncollidedWith(bodyB);
                 charB.uncollidedWith(bodyA);
             }

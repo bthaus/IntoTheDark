@@ -1,10 +1,14 @@
 package com.mygdx.game;
 
 import Types.BlockType;
+import Types.HandlerType;
 import Types.TerrainType;
 import Types.UnitType;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
+import util.PhysicsTable;
+import util.TypeHolder;
+import util.global;
 
 import java.util.LinkedList;
 
@@ -20,15 +24,15 @@ public class Character {
     UnitType unitType=UnitType.DEFAULT;
     boolean isTerrain=false;
     CollisionHandler collisionHandler=new CollisionHandler(this);
-
-
-
     TerrainType terrainType=TerrainType.DEFAULT;
-
-
-
     BlockType blockType;
     LinkedList<Action>actions=new LinkedList<>();
+    LinkedList<Body>touchedFloors=new LinkedList<>();
+    Body body;
+
+    public Character(Body body) {
+        this.body=body;
+    }
 
 
     public void doActions() {
@@ -46,21 +50,26 @@ public class Character {
     public void collidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
        if(body.isTerrain){
-           collisionHandler.handleTerrainCollision(bodyB);
+           collisionHandler.handleTerrainCollision(bodyB, global.getHandlerType(body.getTerrainType(),getUnitType()));
        }else{
-           collisionHandler.handleUnitCollision(bodyB);
+           collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
        }
 
     }
+    public HandlerType determineHandlerType(Body body, TerrainType terrainType){
+        TypeHolder holder=new TypeHolder(terrainType,getCharacter(body).getUnitType());
+        return holder.determineHandlerType();
+    }
+
 
 
 
     public void uncollidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain){
-            collisionHandler.handleTerrainDetachment(bodyB);
+            collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getUnitType()));
         }else{
-            collisionHandler.handleUnitDetachment(bodyB);
+           collisionHandler.handleUnitDetachment(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
         }
     }
 
@@ -75,15 +84,20 @@ public class Character {
         this.isTerrain=true;
     }
 
-    public boolean isCanJump() {
-        return canJump;
+    public int getContacts(){
+        return this.touchedFloors.size();
+    }
+    public int addContact(Body a){
+        if (!touchedFloors.contains(a)&&getCharacter(a).getTerrainType().equals(TerrainType.FLOOR)) touchedFloors.add(a);
+
+        return this.touchedFloors.size();
+    }
+    public int decrContacts(Body a){
+       if(touchedFloors.contains(a)) touchedFloors.remove(a);
+
+        return this.touchedFloors.size();
     }
 
-    public void setCanJump(boolean canJump) {
-        this.canJump = canJump;
-    }
-
-    boolean canJump=true;
 
     public Stats getStats() {
         return stats;
@@ -140,5 +154,18 @@ public class Character {
 
     public void setActions(LinkedList<Action> actions) {
         this.actions = actions;
+    }
+
+    public boolean canJump() {
+
+        if (this.getContacts() > 0) return true;
+        else return false;
+    }
+    public void jump(){
+        if(canJump()){
+            body.applyLinearImpulse(PhysicsTable.jumpForce,body.getWorldCenter(),true);
+
+        }
+
     }
 }
