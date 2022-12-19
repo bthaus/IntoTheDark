@@ -46,7 +46,13 @@ float duration;
     }
 
     private void myjump() {
-        actor.applyLinearImpulse(PhysicsTable.jumpForce,actor.getWorldCenter(),true);
+        if(getCharacter(actor).isCanJump()){
+            actor.applyLinearImpulse(PhysicsTable.jumpForce,actor.getWorldCenter(),true);
+            getCharacter(actor).setCanJump(false);
+        }
+
+
+
     }
 
     private void mymove() {

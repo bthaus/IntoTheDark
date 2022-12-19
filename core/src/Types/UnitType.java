@@ -1,5 +1,5 @@
 package Types;
 
 public enum UnitType {
-    ENEMY,FRIEND,NPC,BOSS,HERO
+    ENEMY,FRIEND,NPC,BOSS, DEFAULT, HERO
 }

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import Types.BlockType;
+import Types.TerrainType;
 import Types.UnitType;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -13,8 +14,27 @@ public class Character {
     Equipment equipment;
     Friend friend=null;
     Texture texture;
-    UnitType unitType;
-    boolean airborn;
+    UnitType unitType=UnitType.DEFAULT;
+
+    public TerrainType getTerrainType() {
+        return terrainType;
+    }
+
+    public void setTerrainType(TerrainType terrainType) {
+        this.terrainType = terrainType;
+    }
+
+    TerrainType terrainType=TerrainType.DEFAULT;
+
+    public boolean isCanJump() {
+        return canJump;
+    }
+
+    public void setCanJump(boolean canJump) {
+        this.canJump = canJump;
+    }
+
+    boolean canJump=true;
 
     public Stats getStats() {
         return stats;
@@ -56,13 +76,6 @@ public class Character {
         this.unitType = unitType;
     }
 
-    public boolean isAirborn() {
-        return airborn;
-    }
-
-    public void setAirborn(boolean airborn) {
-        this.airborn = airborn;
-    }
 
     public BlockType getBlockType() {
         return blockType;
@@ -94,6 +107,7 @@ public class Character {
     public void addAction(Action action){
         actions.add(action);
     }
+
 
 
 }

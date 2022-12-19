@@ -1,17 +1,17 @@
 package Types;
 
 public enum TerrainType {
-   SKY,BACKGROUND;
+   SKY,BACKGROUND,
 
-    enum Floor{
-        ICE,NORMAL,SPIKY,STICKY
-    }
-    enum INTERACTABLE{
-        BOX,DOOR,HATCH
-    }
-    enum WALL{
-        WINDOW, PASSABLE,BOUNCY,RIGID,DESTROYABLE,JELLY,STICKY,
-    }
+
+        ICE,NORMAL,SPIKY,STICKY,
+
+
+        BOX,DOOR,HATCH,
+
+
+        WINDOW, PASSABLE,BOUNCY,RIGID,DESTROYABLE,JELLY, DEFAULT, FLOOR
+
 
 
 }
