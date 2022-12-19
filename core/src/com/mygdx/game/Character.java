@@ -51,14 +51,18 @@ public class Character {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
             collisionHandler.handleTerrainCollision(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+            return;
         }
         if(!body.isTerrain&&!isTerrain){
             collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+            return;
         }
        if(body.isTerrain){
            collisionHandler.handleTerrainCollision(bodyB, global.getHandlerType(body.getTerrainType(),getUnitType()));
+           return;
        }else{
            collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
+           return;
        }
 
     }

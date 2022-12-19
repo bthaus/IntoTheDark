@@ -38,7 +38,6 @@ public class CollisionHandler {
         for (UnitCollisionHandler u:uch) {
 
             if(u.getName().equals(handlerType)){
-
                 u.collideWith(bodyB);
             }
         }
@@ -54,7 +53,7 @@ public class CollisionHandler {
     }
 
     public void handleUnitDetachment(Body bodyB, HandlerType handlerType) {
-        System.out.println(uch);
+
         for (UnitCollisionHandler u:uch
         ) {
             if(u.getName().equals(handlerType)){
@@ -70,7 +69,7 @@ public class CollisionHandler {
         tch.add(handler);
     }
     public void setCustomUnitCollisionHandler(UnitCollisionHandler handler){
-        System.out.println("unitcollisionhandler added");
+
         handler.setTypeCombination();
         uch.add(handler);
     }

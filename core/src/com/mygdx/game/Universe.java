@@ -103,13 +103,12 @@ public class Universe {
             @Override
             public void collideWith(Body a) {
                 Character body=getCharacter(a);
-                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("collided with enemy");
+                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("hero hit an enemy");
             }
 
             @Override
             public void detachFrom(Body a) {
-                Character body=getCharacter(a);
-                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("detached from enemy");
+
             }
 
             @Override
@@ -122,10 +121,33 @@ public class Universe {
                 global.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.HERO,HandlerType.ENEMYCOLLISION));
             }
         });
+        getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                if(getCharacter(a).getUnitType().equals(UnitType.HERO)){
+                    System.out.println("ouch, the hero hit me!");
+                }
+            }
 
+            @Override
+            public void detachFrom(Body a) {
+
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.ENEMYHIT;
+            }
+
+            @Override
+            public void setTypeCombination() {
+                global.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.ENEMYHIT));
+
+            }
+        });
 
        addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
-    //   addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
+       addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
 
     }
 
