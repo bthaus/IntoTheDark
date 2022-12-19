@@ -2,5 +2,5 @@ package Types;
 
 public enum HandlerType {
 
-    DEFAULT, TOUCHFLOOR
+    DEFAULT, WALLLISTENER, ENEMYCOLLISION, TOUCHFLOOR
 }

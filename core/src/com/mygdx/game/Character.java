@@ -49,6 +49,12 @@ public class Character {
 
     public void collidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
+        if(body.isTerrain&&isTerrain){
+            collisionHandler.handleTerrainCollision(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+        }
+        if(!body.isTerrain&&!isTerrain){
+            collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+        }
        if(body.isTerrain){
            collisionHandler.handleTerrainCollision(bodyB, global.getHandlerType(body.getTerrainType(),getUnitType()));
        }else{
@@ -66,6 +72,12 @@ public class Character {
 
     public void uncollidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
+        if(body.isTerrain&&isTerrain){
+            collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+        }
+        if(!body.isTerrain&&!isTerrain){
+            collisionHandler.handleUnitDetachment(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+        }
         if(body.isTerrain){
             collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getUnitType()));
         }else{

@@ -4,6 +4,7 @@ import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.HandlerType;
 import com.badlogic.gdx.physics.box2d.Body;
+import util.Log;
 
 import java.util.LinkedList;
 
@@ -53,7 +54,7 @@ public class CollisionHandler {
     }
 
     public void handleUnitDetachment(Body bodyB, HandlerType handlerType) {
-
+        System.out.println(uch);
         for (UnitCollisionHandler u:uch
         ) {
             if(u.getName().equals(handlerType)){
@@ -69,6 +70,8 @@ public class CollisionHandler {
         tch.add(handler);
     }
     public void setCustomUnitCollisionHandler(UnitCollisionHandler handler){
+        System.out.println("unitcollisionhandler added");
+        handler.setTypeCombination();
         uch.add(handler);
     }
 }

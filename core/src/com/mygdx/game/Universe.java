@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import Handler.TerrainCollisionHandler;
+import Handler.UnitCollisionHandler;
 import Types.*;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
@@ -73,10 +74,59 @@ public class Universe {
                 global.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
             }
         });
+        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                Character body=getCharacter(a);
+                if(body.getTerrainType().equals(TerrainType.WALL)) System.out.println("collided with wall");
+            }
+
+            @Override
+            public void detachFrom(Body a) {
+                Character body=getCharacter(a);
+                if(body.getTerrainType().equals(TerrainType.WALL)) System.out.println("detached from wall");
+
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.WALLLISTENER;
+            }
+
+            @Override
+            public void setTypeCombination() {
+                global.addTypeHolder(new TypeHolder(TerrainType.WALL,UnitType.HERO,HandlerType.WALLLISTENER));
+            }
+        });
+        Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
+        getCharacter(hero).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                Character body=getCharacter(a);
+                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("collided with enemy");
+            }
+
+            @Override
+            public void detachFrom(Body a) {
+                Character body=getCharacter(a);
+                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("detached from enemy");
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.ENEMYCOLLISION;
+            }
+
+            @Override
+            public void setTypeCombination() {
+                global.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.HERO,HandlerType.ENEMYCOLLISION));
+            }
+        });
 
 
        addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
-       addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
+    //   addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
+
     }
 
 
