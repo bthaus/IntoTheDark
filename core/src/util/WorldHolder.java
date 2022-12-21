@@ -49,8 +49,8 @@ public class WorldHolder {
                 Body bodyB = contact.getFixtureB().getBody();
                 Character charA = getCharacter(bodyA);
                 Character charB = getCharacter(bodyB);
-                charA.collidedWith(bodyB);
-                charB.collidedWith(bodyA);
+                charA.collidedWith(bodyB,bodyA);
+                charB.collidedWith(bodyA,bodyB);
             }
 
             @Override

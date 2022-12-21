@@ -25,7 +25,8 @@ public class Universe {
     WorldHolder holder;
     Body hero;
     Character heroChar;
-    int checksum=0;
+    LinkedList<Body>toRemove=new LinkedList<>();
+
 
 
 
@@ -34,6 +35,7 @@ public class Universe {
     public void init(){
         holder = new WorldHolder();
         holder.init();
+        global.universe=this;
 
         debuginit();
 
@@ -42,7 +44,27 @@ public class Universe {
     private void debuginit() {
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
+        CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                toRemove.add(a);
+            }
 
+            @Override
+            public void detachFrom(Body a) {
+
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.BULLETDISPOSAL;
+            }
+
+            @Override
+            public void setTypeCombination() {
+           TypeHolder.addTypeHolder(new TypeHolder(TerrainType.ALL,UnitType.BULLET,HandlerType.BULLETDISPOSAL));
+            }
+        });
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
 
             @Override
@@ -75,85 +97,17 @@ public class Universe {
             }
         });
 
-        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
-            @Override
-            public void collideWith(Body a) {
-                Character body=getCharacter(a);
-                if(body.getTerrainType().equals(TerrainType.WALL)) System.out.println("collided with wall");
-            }
 
-            @Override
-            public void detachFrom(Body a) {
-                Character body=getCharacter(a);
-                if(body.getTerrainType().equals(TerrainType.WALL)) System.out.println("detached from wall");
 
-            }
 
-            @Override
-            public HandlerType getName() {
-                return HandlerType.WALLLISTENER;
-            }
-
-            @Override
-            public void setTypeCombination() {
-                TypeHolder.addTypeHolder(new TypeHolder(TerrainType.WALL,UnitType.HERO,HandlerType.WALLLISTENER));
-            }
-        });
-        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
-            @Override
-            public void collideWith(Body a) {
-                System.out.println("collided with something");
-            }
-
-            @Override
-            public void detachFrom(Body a) {
-                System.out.println("detached from something");
-
-            }
-
-            @Override
-            public HandlerType getName() {
-                return HandlerType.LISTENER;
-            }
-
-            @Override
-            public void setTypeCombination() {
-                LinkedList<TerrainType>terrainTypes=new LinkedList<>();
-                terrainTypes.add(TerrainType.FLOOR);
-                terrainTypes.add(TerrainType.WALL);
-                TypeHolder.addTypeHolder(new TypeHolder(terrainTypes,UnitType.HERO,HandlerType.LISTENER));
-            }
-        });
 
         Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
-        getCharacter(hero).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
-            @Override
-            public void collideWith(Body a) {
-                Character body=getCharacter(a);
-                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("hero hit an enemy");
-            }
-
-            @Override
-            public void detachFrom(Body a) {
-
-            }
-
-            @Override
-            public HandlerType getName() {
-                return HandlerType.ENEMYCOLLISION;
-            }
-
-            @Override
-            public void setTypeCombination() {
-                TypeHolder.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.HERO,HandlerType.ENEMYCOLLISION,true));
-            }
-        });
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
             public void collideWith(Body a) {
-                if(getCharacter(a).getUnitType().equals(UnitType.HERO)){
-                    System.out.println("ouch, the hero hit me!");
-                }
+                System.out.println("hit by bullet");
+                if(!toRemove.contains(a))  toRemove.add(a);
+
             }
 
             @Override
@@ -168,33 +122,10 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                TypeHolder.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.ENEMYHIT,true));
-
+                    TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET,UnitType.ENEMY,HandlerType.ENEMYHIT,true));
             }
         });
-        getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
-            @Override
-            public void collideWith(Body a) {
-                Character temp=getCharacter(a);
-                System.out.println(temp.unitType);
-            }
 
-            @Override
-            public void detachFrom(Body a) {
-
-            }
-
-            @Override
-            public HandlerType getName() {
-                return HandlerType.SOMETHING;
-            }
-
-            @Override
-            public void setTypeCombination() {
-
-                TypeHolder.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.SOMETHING,true));
-            }
-        });
 
        addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
        addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
@@ -203,7 +134,9 @@ public class Universe {
 
 
     public void getUserInput(){
-
+        if (Gdx.input.isTouched()){
+            Action.createAction(ActionType.ATTACK,hero).link();
+        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
             Action.createAction(ActionType.JUMP,hero).link();
@@ -226,9 +159,14 @@ public class Universe {
         }
 
         holder.world.step(utilFields.getTimeStep(), utilFields.getVelocityIterations(), utilFields.getPositionIterations());
-
+        for (Body a:toRemove
+             ) {
+            holder.world.destroyBody(a);
+        }
+        toRemove.clear();
 
     }
+
     public void adjustCamera(){
        holder.camera.update();
         ScreenUtils.clear(0, 0, 0.2f, 1);
@@ -300,7 +238,14 @@ public class Universe {
         groundbox.setAsBox(set(width),set(height));
         ground.createFixture(groundbox, density);
         Character chara=new Character(ground);
-        Texture text=new Texture(Gdx.files.internal(texture.concat(".png")));
+        Texture text;
+        try {
+             text=new Texture(Gdx.files.internal(texture));
+        } catch (Exception e) {
+             text=new Texture(Gdx.files.internal(texture.concat(".png")));
+        }
+
+
         chara.setTexture(text);
         chara.setTerrainType(type);
 

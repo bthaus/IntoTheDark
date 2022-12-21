@@ -32,12 +32,15 @@ public class Character {
 
     public Character(Body body) {
         this.body=body;
+        this.equipment=new Equipment();
+        this.equipment.arms=new Armament();
     }
 
 
     public void doActions() {
         for (Action action:actions
              ) {
+
             action.execute();
         }
         actions.clear();

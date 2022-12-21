@@ -73,6 +73,7 @@ public class TypeHolder {
 
 
     public static void addTypeHolder(TypeHolder typeHolder) {
+        System.out.println("added tyoholder"+typeHolder.handlerType);
         typeHolders.add(typeHolder);
     }
     public static LinkedList<HandlerType> getHandlerType(TerrainType terrainType,UnitType unitType){
@@ -80,7 +81,7 @@ public class TypeHolder {
         for (TypeHolder a:typeHolders
         ) {
 
-            if(a.terrainTypes.contains(terrainType)&&a.unitType.equals(unitType)){
+            if(a.terrainTypes.contains(terrainType)||a.terrainTypes.contains(TerrainType.ALL)&&a.unitType.equals(unitType)){
 
                 handlerTypes.add(a.handlerType);
             }
@@ -92,7 +93,7 @@ public class TypeHolder {
         for (TypeHolder a:typeHolders
         ) {
 
-            if(a.terrainTypes.contains(terrainType)&&a.terrainType2.equals(terrainType2)){
+            if(a.terrainTypes.contains(terrainType)||a.terrainTypes.contains(TerrainType.ALL)&&a.terrainType2.equals(terrainType2)){
 
                 handlerTypes.add(a.handlerType);
             }
@@ -104,7 +105,7 @@ public class TypeHolder {
         for (TypeHolder a:typeHolders
         ) {
 
-            if(a.unitTypes.contains(unitType)&&a.unitType2.equals(unitType2)){
+            if(a.unitTypes.contains(unitType)||a.unitTypes.contains(UnitType.ALL)&&a.unitType2.equals(unitType2)){
 
                 handlerTypes.add(a.handlerType);
             }

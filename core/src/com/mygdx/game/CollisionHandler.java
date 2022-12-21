@@ -17,8 +17,13 @@ public class CollisionHandler {
     //making the correct  assignment and the addition of custom handlers a little tricky and cumbersome
     Character character;
     LinkedList<TerrainCollisionHandler> tch=new LinkedList<>();
+    static public LinkedList<TerrainCollisionHandler> standarttch=new LinkedList<>();
     LinkedList<UnitCollisionHandler> uch=new LinkedList<>();
+    static public LinkedList<UnitCollisionHandler> standartuch=new LinkedList<>();
+
     public CollisionHandler(Character character) {
+        tch.addAll(standarttch);
+        uch.addAll(standartuch);
         this.character=character;
     }
 
@@ -78,12 +83,20 @@ public class CollisionHandler {
         }
     }
 
+    static public void setStandartTerrainHandler(TerrainCollisionHandler handler){
+        handler.setTypeCombination();
+        standarttch.add(handler);
+    }
+    static public void setStandartUnitHandler(UnitCollisionHandler handler){
+        handler.setTypeCombination();
+        standartuch.add(handler);
+    }
     public void setCustomTerrainCollisionHandler(TerrainCollisionHandler handler){
         handler.setTypeCombination();
         tch.add(handler);
     }
     public void setCustomUnitCollisionHandler(UnitCollisionHandler handler){
-
+        System.out.println("typeholder added");
         handler.setTypeCombination();
         uch.add(handler);
     }

@@ -4,6 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 public class Armament {
+    public float getVelocity() {
+        return 2000;
+    }
+
     enum Type{
         WEAPON,
         SHIELD,
