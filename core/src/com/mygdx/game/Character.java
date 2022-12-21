@@ -1,14 +1,12 @@
 package com.mygdx.game;
 
 import Types.BlockType;
-import Types.HandlerType;
 import Types.TerrainType;
 import Types.UnitType;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
 import util.PhysicsTable;
 import util.TypeHolder;
-import util.global;
 
 import java.util.LinkedList;
 
@@ -50,7 +48,7 @@ public class Character {
     }
 
 
-    public void collidedWith(Body bodyB) {
+    public void collidedWith(Body bodyB, Body bodyA) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
             collisionHandler.handleTerrainCollision(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getTerrainType()));

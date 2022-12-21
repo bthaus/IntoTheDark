@@ -35,7 +35,7 @@ public class CollisionHandler {
             for (HandlerType h:handlerTypes
                  ) {
                 if(t.getName().equals(h))
-                    t.collideWith(bodyB);
+                    t.collideWith(bodyB, character.body);
             }
             }
 
@@ -47,7 +47,7 @@ public class CollisionHandler {
             for (HandlerType h:handlerTypes
                  ) {
                 if(u.getName().equals(h)){
-                    u.collideWith(bodyB);
+                    u.collideWith(bodyB, character.body);
                 }
             }
 
@@ -60,7 +60,7 @@ public class CollisionHandler {
             for (HandlerType h:handlerTypes
                  ) {
                 if(t.getName().equals(h)) {
-                    t.detachFrom(bodyB);
+                    t.detachFrom(bodyB, character.body);
                 }
             }
 
@@ -75,7 +75,7 @@ public class CollisionHandler {
                  ) {
                 if(u.getName().equals(h)){
 
-                    u.detachFrom(bodyB);
+                    u.detachFrom(bodyB, character.body);
                 }
             }
 

@@ -45,13 +45,15 @@ public class Universe {
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
+
+
             @Override
-            public void collideWith(Body a) {
-                toRemove.add(a);
+            public void collideWith(Body hitter, Body hit) {
+                toRemove.add(hit);
             }
 
             @Override
-            public void detachFrom(Body a) {
+            public void detachFrom(Body hitter, Body hit) {
 
             }
 
@@ -68,7 +70,7 @@ public class Universe {
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
 
             @Override
-            public void collideWith(Body a) {
+            public void collideWith(Body a,Body b) {
                 Character temp=getCharacter(a);
 
 
@@ -77,11 +79,11 @@ public class Universe {
             }
 
             @Override
-            public void detachFrom(Body a) {
+            public void detachFrom(Body hitter,Body b) {
 
-                Character temp=getCharacter(a);
+                Character temp=getCharacter(hitter);
 
-                    heroChar.decrContacts(a);
+                    heroChar.decrContacts(hitter);
 
 
             }
@@ -104,14 +106,14 @@ public class Universe {
         Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
-            public void collideWith(Body a) {
+            public void collideWith(Body hitter,Body b) {
                 System.out.println("hit by bullet");
-                if(!toRemove.contains(a))  toRemove.add(a);
+                if(!toRemove.contains(hitter))  toRemove.add(hitter);
 
             }
 
             @Override
-            public void detachFrom(Body a) {
+            public void detachFrom(Body hitter,Body b) {
 
             }
 
