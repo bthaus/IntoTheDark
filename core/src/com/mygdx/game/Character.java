@@ -50,26 +50,23 @@ public class Character {
     public void collidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
-            collisionHandler.handleTerrainCollision(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+            collisionHandler.handleTerrainCollision(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getTerrainType()));
             return;
         }
         if(!body.isTerrain&&!isTerrain){
-            collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+            collisionHandler.handleUnitCollision(bodyB,TypeHolder.getHandlerType(body.getUnitType(),getUnitType()));
             return;
         }
        if(body.isTerrain){
-           collisionHandler.handleTerrainCollision(bodyB, global.getHandlerType(body.getTerrainType(),getUnitType()));
+           collisionHandler.handleTerrainCollision(bodyB, TypeHolder.getHandlerType(body.getTerrainType(),getUnitType()));
            return;
        }else{
-           collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
+           collisionHandler.handleUnitCollision(bodyB,TypeHolder.getHandlerType(getTerrainType(), body.getUnitType()));
            return;
        }
 
     }
-    public HandlerType determineHandlerType(Body body, TerrainType terrainType){
-        TypeHolder holder=new TypeHolder(terrainType,getCharacter(body).getUnitType());
-        return holder.determineHandlerType();
-    }
+
 
 
 
@@ -77,15 +74,15 @@ public class Character {
     public void uncollidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
-            collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+            collisionHandler.handleTerrainDetachment(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getTerrainType()));
         }
         if(!body.isTerrain&&!isTerrain){
-            collisionHandler.handleUnitDetachment(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+            collisionHandler.handleUnitDetachment(bodyB,TypeHolder.getHandlerType(body.getUnitType(),getUnitType()));
         }
         if(body.isTerrain){
-            collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getUnitType()));
+            collisionHandler.handleTerrainDetachment(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getUnitType()));
         }else{
-           collisionHandler.handleUnitDetachment(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
+           collisionHandler.handleUnitDetachment(bodyB,TypeHolder.getHandlerType(getTerrainType(), body.getUnitType()));
         }
     }
 

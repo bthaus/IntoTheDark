@@ -22,44 +22,58 @@ public class CollisionHandler {
         this.character=character;
     }
 
-    public void handleTerrainCollision(Body bodyB,HandlerType type ) {
+    public void handleTerrainCollision(Body bodyB,LinkedList<HandlerType> handlerTypes ) {
 
 
         for (TerrainCollisionHandler t:tch
              ) {
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(t.getName().equals(h))
+                    t.collideWith(bodyB);
+            }
+            }
 
-            if(t.getName().equals(type))
-               t.collideWith(bodyB);
-        }
     }
 
-    public void handleUnitCollision(Body bodyB, HandlerType handlerType) {
+    public void handleUnitCollision(Body bodyB, LinkedList<HandlerType> handlerTypes) {
 
         for (UnitCollisionHandler u:uch) {
-
-            if(u.getName().equals(handlerType)){
-                u.collideWith(bodyB);
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(u.getName().equals(h)){
+                    u.collideWith(bodyB);
+                }
             }
+
         }
     }
 
-    public void handleTerrainDetachment(Body bodyB,HandlerType type) {
+    public void handleTerrainDetachment(Body bodyB,LinkedList<HandlerType> handlerTypes) {
 
         for (TerrainCollisionHandler t:tch) {
-            if(t.getName().equals(type)) {
-                 t.detachFrom(bodyB);
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(t.getName().equals(h)) {
+                    t.detachFrom(bodyB);
+                }
             }
+
         }
     }
 
-    public void handleUnitDetachment(Body bodyB, HandlerType handlerType) {
+    public void handleUnitDetachment(Body bodyB, LinkedList<HandlerType> handlerTypes) {
 
         for (UnitCollisionHandler u:uch
         ) {
-            if(u.getName().equals(handlerType)){
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(u.getName().equals(h)){
 
-                u.detachFrom(bodyB);
+                    u.detachFrom(bodyB);
+                }
             }
+
 
         }
     }

@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import util.PhysicsTable;
 import util.*;
 
+import java.util.LinkedList;
+
 import static util.utilMethods.*;
 
 public class Universe {
@@ -40,27 +42,25 @@ public class Universe {
     private void debuginit() {
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
+
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
 
             @Override
             public void collideWith(Body a) {
                 Character temp=getCharacter(a);
 
-                if(temp.getTerrainType().equals(TerrainType.FLOOR)){
 
                     heroChar.addContact(a);
 
-                }
             }
 
             @Override
             public void detachFrom(Body a) {
 
                 Character temp=getCharacter(a);
-                if(temp.getTerrainType().equals(TerrainType.FLOOR)){
+
                     heroChar.decrContacts(a);
 
-                }
 
             }
 
@@ -71,9 +71,10 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
+                TypeHolder.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
             }
         });
+
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
             @Override
             public void collideWith(Body a) {
@@ -95,9 +96,35 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(TerrainType.WALL,UnitType.HERO,HandlerType.WALLLISTENER));
+                TypeHolder.addTypeHolder(new TypeHolder(TerrainType.WALL,UnitType.HERO,HandlerType.WALLLISTENER));
             }
         });
+        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                System.out.println("collided with something");
+            }
+
+            @Override
+            public void detachFrom(Body a) {
+                System.out.println("detached from something");
+
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.LISTENER;
+            }
+
+            @Override
+            public void setTypeCombination() {
+                LinkedList<TerrainType>terrainTypes=new LinkedList<>();
+                terrainTypes.add(TerrainType.FLOOR);
+                terrainTypes.add(TerrainType.WALL);
+                TypeHolder.addTypeHolder(new TypeHolder(terrainTypes,UnitType.HERO,HandlerType.LISTENER));
+            }
+        });
+
         Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
         getCharacter(hero).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
@@ -118,7 +145,7 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.HERO,HandlerType.ENEMYCOLLISION));
+                TypeHolder.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.HERO,HandlerType.ENEMYCOLLISION,true));
             }
         });
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
@@ -141,8 +168,31 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.ENEMYHIT));
+                TypeHolder.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.ENEMYHIT,true));
 
+            }
+        });
+        getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
+            @Override
+            public void collideWith(Body a) {
+                Character temp=getCharacter(a);
+                System.out.println(temp.unitType);
+            }
+
+            @Override
+            public void detachFrom(Body a) {
+
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.SOMETHING;
+            }
+
+            @Override
+            public void setTypeCombination() {
+
+                TypeHolder.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.SOMETHING,true));
             }
         });
 
