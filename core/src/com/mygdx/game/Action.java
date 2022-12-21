@@ -54,15 +54,17 @@ float duration;
         x= (int) get(actor.getPosition().x);
         y= (int) get(actor.getPosition().y);
         int xd,yd;
-        xd=Gdx.input.getX();
-        yd=Gdx.input.getY();
+        xd=Gdx.input.getX()+150;
+        yd=Gdx.input.getY()+150;
 
-       Body bullet= global.universe.addEntity(x+261,y,1,1, UnitType.BULLET,"shuriken");
-
+       Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
+        //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
+        bullet.getFixtureList().get(0).setSensor(true);
        float impulse=getCharacter(actor).equipment.arms.getVelocity();
+
        Vector2 direction=new Vector2();
-       direction.x=10000;
-       direction.y=100;
+       direction.x=(xd-x)*impulse;
+       direction.y=-(yd-y)*impulse;
         global.numbullets++;
         System.out.println(global.numbullets);
        bullet.applyForce(direction,bullet.getWorldCenter(),true);

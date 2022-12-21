@@ -44,12 +44,13 @@ public class Universe {
     private void debuginit() {
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
+
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 
             @Override
             public void collideWith(Body hitter, Body hit) {
-                toRemove.add(hit);
+               if (!toRemove.contains(hit))toRemove.add(hit);
             }
 
             @Override
@@ -67,6 +68,7 @@ public class Universe {
            TypeHolder.addTypeHolder(new TypeHolder(TerrainType.ALL,UnitType.BULLET,HandlerType.BULLETDISPOSAL));
             }
         });
+
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
 
             @Override

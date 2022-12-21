@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Armament {
     public float getVelocity() {
-        return 250;
+        return 10;
     }
 
     enum Type{
