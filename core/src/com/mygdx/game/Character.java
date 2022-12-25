@@ -1,12 +1,11 @@
 package com.mygdx.game;
 
-import Types.BlockType;
-import Types.TerrainType;
-import Types.UnitType;
+import Types.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
 import util.PhysicsTable;
 import util.TypeHolder;
+import util.Watch;
 
 import java.util.LinkedList;
 
@@ -14,7 +13,7 @@ import static util.utilMethods.getCharacter;
 
 //is saved in body.UserData
 public class Character {
-
+    Watch watch=new Watch();
     Stats stats;
     Equipment equipment;
     Friend friend=null;
@@ -27,6 +26,10 @@ public class Character {
     LinkedList<Action>actions=new LinkedList<>();
     LinkedList<Body>touchedFloors=new LinkedList<>();
     Body body;
+    Mode mode=Mode.ATTACKMODE;
+
+    LinkedList<ActionType>actionFilter=new LinkedList<>();
+    Action blockingAction;
 
     public Character(Body body) {
         this.body=body;
@@ -36,19 +39,39 @@ public class Character {
 
 
     public void doActions() {
+        boolean done=true;
+        if(watch.active()&&watch.done())
+        {
+            System.out.println("done doing whatever bitch");
+            actionFilter.clear();
+            blockingAction.handler.after();
+        }
+
         for (Action action:actions
              ) {
+            if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)) continue;
 
-            action.execute();
+                action.handler.before();
+                action.handler.onStart();
+                done=action.handler.execute();
+
+                if(done) action.handler.after();
+                else    {
+                    watch.start(action.duration);
+                    actionFilter=action.actionFilter;
+                    blockingAction=action;
+                }
+
+
         }
-        actions.clear();
+         actions.clear();
     }
     public void addAction(Action action){
         actions.add(action);
     }
 
 
-    public void collidedWith(Body bodyB, Body bodyA) {
+    public void collidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
             collisionHandler.handleTerrainCollision(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getTerrainType()));
@@ -181,5 +204,14 @@ public class Character {
 
         }
 
+    }
+
+    public void switchMode() {
+        switch (mode){
+            case ATTACKMODE:mode=Mode.LIGHTMODE;break;
+            case LIGHTMODE:mode=Mode.ATTACKMODE;break;
+            default: break;
+        }
+        System.out.println(mode);
     }
 }

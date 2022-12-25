@@ -1,8 +1,11 @@
 package com.mygdx.game;
 
+import Handler.ActionHandler;
 import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
+import box2dLight.ConeLight;
+import box2dLight.Light;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
@@ -19,6 +22,7 @@ import util.*;
 
 import java.util.LinkedList;
 
+import static java.lang.Math.atan2;
 import static util.utilMethods.*;
 
 public class Universe {
@@ -26,7 +30,7 @@ public class Universe {
     Body hero;
     Character heroChar;
     LinkedList<Body>toRemove=new LinkedList<>();
-
+    LinkedList<ConeLight>coneLights=new LinkedList<>();
 
 
 
@@ -139,7 +143,80 @@ public class Universe {
 
     public void getUserInput(){
         if (Gdx.input.isTouched()){
-            Action.createAction(ActionType.ATTACK,hero).link();
+            switch (heroChar.mode){
+                case ATTACKMODE: Action.createAction(ActionType.ATTACK,hero).link();break;
+                case LIGHTMODE: Action action=Action.createAction(ActionType.LIGHT,hero); action.setActionHandler(new ActionHandler() {
+                    @Override
+                    public void before() {
+
+                    }
+
+                    @Override
+                    public void onStart() {
+
+                    }
+
+                    @Override
+                    public boolean execute() {
+                        System.out.println("lighting");
+                        float cx,cy, x,y;
+                        x=get(hero.getPosition().x);
+                        y=get(hero.getPosition().y);
+
+                        cx=Gdx.input.getX();
+                        cy=Gdx.input.getY();
+
+                        x=cx-x;
+                        y=cy-y;
+                        float directionDegree=(float)atan2(x,y);
+
+
+                        ConeLight coneLight=new ConeLight(holder.rayHandler,10,new Color(1,1,1,1),heroChar.equipment.torch.distance,get(hero.getPosition().x),get(hero.getPosition().y),directionDegree,heroChar.equipment.torch.coneDegree);
+                        coneLights.add(coneLight);
+                        return false;
+                    }
+
+                    @Override
+                    public void after() {
+
+                    }
+                });
+                action.setBlockingTypes(new LinkedList<ActionType>());
+                action.link();break;
+            }
+
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.X)){
+          final Action action=  Action.createAction(ActionType.SWITCHPRIMARY,hero);
+          action.setDuration(1000);
+          LinkedList<ActionType>types=new LinkedList<>();
+          types.add(ActionType.ALL);
+          action.setBlockingTypes(types);
+          action.setActionHandler(new ActionHandler() {
+              @Override
+              public void before() {
+
+              }
+
+              @Override
+              public void onStart() {
+                  System.out.println("changing my armament!");
+
+              }
+
+              @Override
+              public boolean execute() {
+                  return false;
+              }
+
+              @Override
+              public void after() {
+                  Character character=getCharacter(action.actor);
+                  character.switchMode();
+
+              }
+          });
+          action.link();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
@@ -195,13 +272,26 @@ public class Universe {
         holder.batch.end();
     }
     public void lightUp(){
-        PointLight light= new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,500,500);
+
+        // PointLight light= new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,500,500);
+        for (ConeLight cone:coneLights
+             ) {
+            cone.update();
+        }
+
+
         holder.rayHandler.setCombinedMatrix(holder.camera.combined);
         holder.rayHandler.updateAndRender();
 
 
     }
-    public void removeLights(){
+    public void removeLights() {
+
+        for (ConeLight c : coneLights) {
+            c.remove();
+        }
+
+            coneLights.clear();
 
     }
 
@@ -213,7 +303,7 @@ public class Universe {
         bodyDef.position.set(set(x), set(y));
         body= holder.world.createBody(bodyDef);
         PolygonShape dynamic=new PolygonShape();
-        dynamic.setAsBox(set(width), set(height));
+        dynamic.setAsBox(set(width),set(height));
 
         FixtureDef fixtureDef=new FixtureDef();
         fixtureDef.shape = dynamic;
@@ -256,6 +346,7 @@ public class Universe {
         ground.setUserData(chara);
         return ground;
     }
+
 
 
 
