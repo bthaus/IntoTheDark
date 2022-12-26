@@ -3,6 +3,7 @@ package util;
 import Types.TerrainType;
 import Types.UnitType;
 import box2dLight.RayHandler;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,6 +18,7 @@ public class WorldHolder {
     public  World world;
     public RayHandler rayHandler;
     public OrthographicCamera camera;
+    public OrthographicCamera lightscam;
 
     public void init() {
         batch = new SpriteBatch();
@@ -25,7 +27,12 @@ public class WorldHolder {
         camera = new OrthographicCamera();
 
 
+
         camera.setToOrtho(false, utilFields.getCamerawidth(), utilFields.getCamerawidth());
+
+        lightscam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        lightscam.setToOrtho(false);
+        lightscam.update();
 
 
 
@@ -34,6 +41,8 @@ public class WorldHolder {
         rayHandler.setAmbientLight(new Color(.1f, .1f, .1f, .5f));
         rayHandler.useDiffuseLight(true);
         rayHandler.setShadows(true);
+        rayHandler.setAmbientLight(1);
+        rayHandler.setBlurNum(2);
         setDefaultListeners();
 
 

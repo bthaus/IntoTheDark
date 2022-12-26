@@ -22,7 +22,7 @@ import util.*;
 
 import java.util.LinkedList;
 
-import static java.lang.Math.atan2;
+import static java.lang.Math.*;
 import static util.utilMethods.*;
 
 public class Universe {
@@ -157,23 +157,26 @@ public class Universe {
                     }
 
                     @Override
-                    public boolean execute() {
-                        System.out.println("lighting");
+                    public STATE execute() {
+
                         float cx,cy, x,y;
-                        x=get(hero.getPosition().x);
-                        y=get(hero.getPosition().y);
+                        x=get(hero.getPosition().x)+150;
+                        y=get(hero.getPosition().y)+150;
 
                         cx=Gdx.input.getX();
                         cy=Gdx.input.getY();
 
                         x=cx-x;
-                        y=cy-y;
-                        float directionDegree=(float)atan2(x,y);
+                        y=-(cy-y);
 
+                        //determine correct factor
+                        float directionDegree=(float)toDegrees(atan2(y,x));
 
-                        ConeLight coneLight=new ConeLight(holder.rayHandler,10,new Color(1,1,1,1),heroChar.equipment.torch.distance,get(hero.getPosition().x),get(hero.getPosition().y),directionDegree,heroChar.equipment.torch.coneDegree);
+                        ConeLight coneLight=new ConeLight(holder.rayHandler,10,new Color(100,100,100,100),heroChar.equipment.torch.distance,hero.getPosition().x+2,hero.getPosition().y+1,directionDegree,heroChar.equipment.torch.coneDegree);
+                        System.out.println("light added");
+
                         coneLights.add(coneLight);
-                        return false;
+                        return STATE.DONE;
                     }
 
                     @Override
@@ -205,8 +208,8 @@ public class Universe {
               }
 
               @Override
-              public boolean execute() {
-                  return false;
+              public STATE execute() {
+                  return STATE.NOTDONE;
               }
 
               @Override
@@ -273,15 +276,21 @@ public class Universe {
     }
     public void lightUp(){
 
-        // PointLight light= new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,500,500);
+
+
+
+
+        holder.rayHandler.setCombinedMatrix(holder.lightscam.combined.scale(conversionFactor, conversionFactor,conversionFactor),set(holder.lightscam.position.x),set(holder.lightscam.position.y), holder.lightscam.viewportWidth*holder.lightscam.zoom, holder.lightscam.viewportHeight*holder.lightscam.zoom);
+
         for (ConeLight cone:coneLights
-             ) {
+        ) {
             cone.update();
         }
-
-
-        holder.rayHandler.setCombinedMatrix(holder.camera.combined);
         holder.rayHandler.updateAndRender();
+        holder.camera.update();
+        holder.lightscam.update();
+
+
 
 
     }

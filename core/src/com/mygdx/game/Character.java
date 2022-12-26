@@ -37,14 +37,18 @@ public class Character {
         this.equipment.arms=new Armament();
     }
 
-
+    boolean onHold=false;
     public void doActions() {
-        boolean done=true;
-        if(watch.active()&&watch.done())
+        STATE state=STATE.NOTDONE;
+
+        if(this.watch.active()&&watch.done())
         {
-            System.out.println("done doing whatever bitch");
-            actionFilter.clear();
-            blockingAction.handler.after();
+                watch=new Watch();
+                actionFilter.clear();
+                blockingAction.handler.after();
+                blockingAction=null;
+
+
         }
 
         for (Action action:actions
@@ -53,9 +57,9 @@ public class Character {
 
                 action.handler.before();
                 action.handler.onStart();
-                done=action.handler.execute();
+                state=action.handler.execute();
 
-                if(done) action.handler.after();
+                if(state.equals(STATE.DONE)) action.handler.after();
                 else    {
                     watch.start(action.duration);
                     actionFilter=action.actionFilter;

@@ -11,6 +11,7 @@ import util.global;
 
 import java.util.LinkedList;
 
+import static Types.STATE.DONE;
 import static util.utilMethods.*;
 
 public class Action {
@@ -89,9 +90,9 @@ Direction direction;
                 }
 
                 @Override
-                public boolean execute() {
+                public STATE execute() {
                     action.myjump();
-                    return true;
+                    return DONE;
                 }
 
                 @Override
@@ -111,9 +112,9 @@ Direction direction;
                 }
 
                 @Override
-                public boolean execute() {
+                public STATE execute() {
                     action.myAttack();
-                    return true;
+                    return DONE;
                 }
 
                 @Override
@@ -133,9 +134,9 @@ Direction direction;
                 }
 
                 @Override
-                public boolean execute() {
+                public STATE execute() {
                     action.mymove();
-                    return true;
+                    return DONE;
                 }
 
                 @Override
