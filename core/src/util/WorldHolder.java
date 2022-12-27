@@ -2,7 +2,7 @@ package util;
 
 import Handler.ActionHandler;
 import Types.STATE;
-import Types.TerrainType;
+import Types.TriggerType;
 import Types.UnitType;
 import Types.WeaponName;
 import box2dLight.RayHandler;
@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.mygdx.game.Armament;
 import com.mygdx.game.Character;
@@ -18,8 +19,8 @@ import com.mygdx.game.Character;
 import java.util.HashMap;
 import java.util.Map;
 
-import static util.utilMethods.getCharacter;
-import static util.utilMethods.set;
+import static util.utilMethods.*;
+import static util.utilMethods.get;
 
 public class WorldHolder {
     public SpriteBatch batch;
@@ -62,12 +63,45 @@ public class WorldHolder {
         return armaments.get(name);
     }
     public void initArmaments(){
-        Armament shuriken=new Armament();
+        //todo: create external datasheet and implement parsing
+        final Armament shuriken=new Armament();
         shuriken.setStandardThrowingWeaponHandler();
         shuriken.setName(WeaponName.SHURIKEN);
         shuriken.setAttackDuration(200);
         shuriken.setDamage(20);
         shuriken.setVelocity(1);
+        shuriken.addAdditionalAction(new ActionHandler() {
+            @Override
+            public void before() {
+
+            }
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public STATE execute() {
+                int x,y;
+                x= (int) get(shuriken.getWielder().getPosition().x)+150;
+                y= (int) get(shuriken.getWielder().getPosition().y)+150;
+                Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
+                //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
+                bullet.getFixtureList().get(0).setSensor(true);
+                Log.a("additional bullet shot");
+                Vector2 direction=new Vector2();
+                direction.x=0;
+                direction.y=10;
+                bullet.applyLinearImpulse(direction,bullet.getWorldCenter(),true);
+                return STATE.DONE;
+            }
+
+            @Override
+            public void after() {
+
+            }
+        },500, TriggerType.ONATTACK);
         shuriken.setTexture(new Texture(Gdx.files.internal("shuriken.png")));
         armaments.put(WeaponName.SHURIKEN,shuriken);
 
@@ -78,6 +112,7 @@ public class WorldHolder {
         torch.setDamage(0);
         torch.setAngle(15);
         torch.setRange(10);
+        torch.setEquipDuration(1000);
         armaments.put(WeaponName.TORCH,torch);
 
 

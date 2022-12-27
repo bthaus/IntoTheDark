@@ -72,12 +72,12 @@ Direction direction;
         }
     }
 
-    void setDuration(long i){
+    public void setDuration(long i){
         this.duration=i;
 
     }
 
-    static Action createAction(ActionType type, final Body actor){
+    public static Action createAction(ActionType type, final Body actor){
 
         final Action action=new Action();
         action.type=type;

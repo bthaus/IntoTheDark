@@ -49,7 +49,7 @@ public class Universe {
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-       // PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+        PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 

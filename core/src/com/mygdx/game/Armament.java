@@ -1,16 +1,14 @@
 package com.mygdx.game;
 
 import Handler.ActionHandler;
-import Types.ActionType;
-import Types.STATE;
-import Types.UnitType;
-import Types.WeaponName;
+import Types.*;
 import box2dLight.ConeLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import util.AdditionalAction;
 import util.Log;
 import util.global;
 
@@ -22,12 +20,34 @@ import static util.utilMethods.get;
 
 public class Armament  {
     ActionHandler attackHandler;
+    LinkedList<AdditionalAction> additionalActions =new LinkedList<>();
 
-
-
+    long attackDuration;
+    int damage;
+    int velocity;
+    int ID;
+    private static int counter=0;
     ActionHandler onEquip;
     WeaponName name;
     Body wielder;
+    int range;
+    int angle;
+    Texture texture;
+    Vector2 offset;
+    LinkedList<ActionType> actionFilter=new LinkedList<>();
+    long equipDuration=100;
+
+    public void addAdditionalAction(ActionHandler handler, long cooldown, TriggerType triggerType){
+        additionalActions.add(new AdditionalAction(handler,cooldown,triggerType));
+    }
+
+    public long getEquipDuration() {
+        return equipDuration;
+    }
+
+    public void setEquipDuration(long equipDuration) {
+        this.equipDuration = equipDuration;
+    }
 
     public Body getWielder() {
         return wielder;
@@ -37,7 +57,7 @@ public class Armament  {
         this.wielder = wielder;
         Action action=Action.createAction(ActionType.EQUIP,wielder);
         action.setActionHandler(onEquip);
-        action.setDuration(100);
+        action.setDuration(equipDuration);
         LinkedList<ActionType>blockingtypes=new LinkedList<>();
         blockingtypes.add(ActionType.MOVE);
         blockingtypes.add(ActionType.ATTACK);
@@ -48,8 +68,7 @@ public class Armament  {
 
     }
 
-    int ID;
-    private static int counter=0;
+
 
     public Armament() {
 
@@ -80,31 +99,10 @@ public class Armament  {
     }
 
 
-    long attackDuration;
-    int damage;
-    int velocity;
 
-    public int getRange() {
-        return range;
-    }
 
-    public void setRange(int range) {
-        this.range = range;
-    }
 
-    public int getAngle() {
-        return angle;
-    }
 
-    public void setAngle(int angle) {
-        this.angle = angle;
-    }
-
-    int range;
-    int angle;
-    Texture texture;
-    Vector2 offset;
-    LinkedList<ActionType> actionFilter=new LinkedList<>();
     public ActionHandler getActionHandler(){
         return attackHandler;
     }
@@ -212,7 +210,15 @@ public class Armament  {
     }
 
     public float getVelocity() {
-        return 10;
+        return velocity;
+    }
+
+    public void attack(int x, int y) {
+
+        Action actionrightHand=Action.createAction(ActionType.ATTACK,wielder);
+        actionrightHand.setStatsByArmament(this);
+        actionrightHand.link();
+
     }
 
     enum Type{
@@ -268,5 +274,21 @@ public class Armament  {
     public void setOffset(Vector2 offset) {
         this.offset = offset;
     }
+    public int getRange() {
+        return range;
+    }
+
+    public void setRange(int range) {
+        this.range = range;
+    }
+
+    public int getAngle() {
+        return angle;
+    }
+
+    public void setAngle(int angle) {
+        this.angle = angle;
+    }
+
 
 }

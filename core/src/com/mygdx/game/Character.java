@@ -3,6 +3,7 @@ package com.mygdx.game;
 import Types.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
+import util.AdditionalAction;
 import util.PhysicsTable;
 import util.TypeHolder;
 import util.Watch;
@@ -85,15 +86,20 @@ public class Character {
     }
     public void addAttackAction(int x, int y){
         if(equipment.rightHand!=null){
-            Action actionrightHand=Action.createAction(ActionType.ATTACK,body);
-            actionrightHand.setStatsByArmament(equipment.rightHand);
-            actionrightHand.link();
+            equipment.rightHand.attack(x,y);
+
         }
         if(equipment.leftHand!=null){
             Action actionleftHand=Action.createAction(ActionType.ATTACK,body);
             actionleftHand.setStatsByArmament(equipment.leftHand);
             actionleftHand.link();
         }
+        for (AdditionalAction attack: equipment.getAllAdditionalAttacks()
+             ) {
+            attack.execute(body);
+        }
+
+
 
 
     }
