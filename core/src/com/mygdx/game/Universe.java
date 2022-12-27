@@ -173,9 +173,11 @@ public class Universe {
                         float directionDegree=(float)toDegrees(atan2(y,x));
 
                         ConeLight coneLight=new ConeLight(holder.rayHandler,10,new Color(100,100,100,100),heroChar.equipment.torch.distance,hero.getPosition().x+2,hero.getPosition().y+1,directionDegree,heroChar.equipment.torch.coneDegree);
+                        ConeLight coneLight2=new ConeLight(holder.rayHandler,10,new Color(100,100,100,100),heroChar.equipment.torch.distance,hero.getPosition().x+2,hero.getPosition().y+1,directionDegree,heroChar.equipment.torch.coneDegree);
                         System.out.println("light added");
 
                         coneLights.add(coneLight);
+                        coneLights.add(coneLight2);
                         return STATE.DONE;
                     }
 
