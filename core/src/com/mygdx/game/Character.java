@@ -31,10 +31,20 @@ public class Character {
     LinkedList<ActionType>actionFilter=new LinkedList<>();
     Action blockingAction;
 
+
+
     public Character(Body body) {
         this.body=body;
         this.equipment=new Equipment();
-        this.equipment.arms=new Armament();
+        this.equipment.rightHand =new Armament();
+    }
+
+
+    public void equipArmament(Armament armament,Slot slot){
+        switch (slot){
+            case RIGHTHAND:equipment.rightHand=armament;armament.setWielder(body);break;
+        }
+
     }
 
     boolean onHold=false;
@@ -73,6 +83,20 @@ public class Character {
     public void addAction(Action action){
         actions.add(action);
     }
+    public void addAttackAction(int x, int y){
+        if(equipment.rightHand!=null){
+            Action actionrightHand=Action.createAction(ActionType.ATTACK,body);
+            actionrightHand.setStatsByArmament(equipment.rightHand);
+            actionrightHand.link();
+        }
+        if(equipment.leftHand!=null){
+            Action actionleftHand=Action.createAction(ActionType.ATTACK,body);
+            actionleftHand.setStatsByArmament(equipment.leftHand);
+            actionleftHand.link();
+        }
+
+
+    }
 
 
     public void collidedWith(Body bodyB) {
@@ -94,11 +118,6 @@ public class Character {
        }
 
     }
-
-
-
-
-
     public void uncollidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){

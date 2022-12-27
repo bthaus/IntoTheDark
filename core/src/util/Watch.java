@@ -10,7 +10,7 @@ public class Watch {
         if(!active)return false;
         currenttime = System.currentTimeMillis();
         if(currenttime>goaltime){
-            System.out.println("done!");
+
             active=false;
             return true;
         }
@@ -21,7 +21,7 @@ public class Watch {
         active=true;
        currenttime = System.currentTimeMillis();
         this.goaltime=duration+ currenttime;
-        System.out.println("watch started at "+currenttime);
+
     }
 
     public boolean active() {

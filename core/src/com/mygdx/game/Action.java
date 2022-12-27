@@ -15,7 +15,7 @@ import static Types.STATE.DONE;
 import static util.utilMethods.*;
 
 public class Action {
-    public LinkedList<ActionType> actionFilter;
+    public LinkedList<ActionType> actionFilter=new LinkedList<>();
     int actionID=0;
 Body actor;
 
@@ -32,7 +32,13 @@ Direction direction;
     public void setDirection(Direction direction) {
         this.direction = direction;
     }
+    public void setStatsByArmament(Armament armament){
+        this.setActionHandler(armament.getActionHandler());
+        this.setDuration(armament.attackDuration);
+        this.actionFilter.addAll(armament.actionFilter);
 
+
+    }
 
 
     private void myAttack() {
@@ -47,7 +53,7 @@ Direction direction;
        Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
         //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
         bullet.getFixtureList().get(0).setSensor(true);
-       float impulse=getCharacter(actor).equipment.arms.getVelocity();
+       float impulse=getCharacter(actor).equipment.rightHand.getVelocity();
 
        Vector2 direction=new Vector2();
        direction.x=(xd-x)*impulse;
