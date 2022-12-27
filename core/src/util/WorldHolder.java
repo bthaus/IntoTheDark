@@ -82,7 +82,7 @@ public class WorldHolder {
             }
 
             @Override
-            public STATE execute() {
+            public STATE execute(float destinationX, float destinationY) {
                 int x,y;
                 x= (int) get(shuriken.getWielder().getPosition().x)+150;
                 y= (int) get(shuriken.getWielder().getPosition().y)+150;

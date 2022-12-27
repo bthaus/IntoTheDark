@@ -5,15 +5,11 @@ import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
 import box2dLight.ConeLight;
-import box2dLight.Light;
 import box2dLight.PointLight;
-import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -22,7 +18,6 @@ import util.*;
 
 import java.util.LinkedList;
 
-import static java.lang.Math.*;
 import static util.utilMethods.*;
 
 public class Universe {
@@ -149,7 +144,6 @@ public class Universe {
         }
         if(Gdx.input.isKeyPressed(Input.Keys.X)){
           final Action action=  Action.createAction(ActionType.SWITCHPRIMARY,hero);
-          action.setDuration(1000);
           LinkedList<ActionType>types=new LinkedList<>();
           types.add(ActionType.ALL);
           action.setBlockingTypes(types);
@@ -161,20 +155,18 @@ public class Universe {
 
               @Override
               public void onStart() {
-                  System.out.println("changing my armament!");
 
               }
 
               @Override
-              public STATE execute() {
+              public STATE execute(float destinationX, float destinationY) {
                   return STATE.NOTDONE;
               }
 
               @Override
               public void after() {
-                 getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.TORCH),Slot.RIGHTHAND);
-
-
+                if(!getCharacter(action.actor).equipment.rightHand.name.equals(WeaponName.TORCH)) getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.TORCH),Slot.RIGHTHAND);
+                else getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
               }
           });
           action.link();

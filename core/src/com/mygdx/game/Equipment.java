@@ -21,6 +21,7 @@ public class Equipment {
         if(leftHand!=null) for(AdditionalAction action: leftHand.additionalActions) if(action.getTriggerType().equals(TriggerType.ONATTACK)) all.add(action);
 
         if(gear!=null) all.addAll(gear.getAllAdditionalAttacks());
+
         return all;
     }
 }

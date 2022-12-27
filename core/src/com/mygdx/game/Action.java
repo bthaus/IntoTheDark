@@ -2,12 +2,9 @@ package com.mygdx.game;
 
 import Handler.ActionHandler;
 import Types.*;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import util.PhysicsTable;
 import util.Moment;
-import util.global;
 
 import java.util.LinkedList;
 
@@ -24,6 +21,23 @@ Moment startTime;
 long duration=0;
 public  ActionHandler handler;
 Direction direction;
+int x, y;
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
 
     public Direction getDirection() {
         return direction;
@@ -41,25 +55,6 @@ Direction direction;
     }
 
 
-    private void myAttack() {
-
-        int x,y;
-        x= (int) get(actor.getPosition().x)+150;
-        y= (int) get(actor.getPosition().y)+150;
-        int xd,yd;
-        xd=Gdx.input.getX();
-        yd=Gdx.input.getY();
-
-       Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
-        //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
-        bullet.getFixtureList().get(0).setSensor(true);
-       float impulse=getCharacter(actor).equipment.rightHand.getVelocity();
-
-       Vector2 direction=new Vector2();
-       direction.x=(xd-x)*impulse;
-       direction.y=-(yd-y)*impulse;
-       bullet.applyForce(direction,bullet.getWorldCenter(),true);
-    }
 
     private void myjump() {
         getCharacter(actor).jump();
@@ -96,7 +91,7 @@ Direction direction;
                 }
 
                 @Override
-                public STATE execute() {
+                public STATE execute(float destinationX, float destinationY) {
                     action.myjump();
                     return DONE;
                 }
@@ -106,7 +101,7 @@ Direction direction;
 
                 }
             }); break;
-            case ATTACK:action.setActionHandler(new ActionHandler() {
+           case MOVE:action.setActionHandler(new ActionHandler() {
                 @Override
                 public void before() {
 
@@ -118,29 +113,7 @@ Direction direction;
                 }
 
                 @Override
-                public STATE execute() {
-                    action.myAttack();
-                    return DONE;
-                }
-
-                @Override
-                public void after() {
-
-                }
-            }); break;
-            case MOVE:action.setActionHandler(new ActionHandler() {
-                @Override
-                public void before() {
-
-                }
-
-                @Override
-                public void onStart() {
-
-                }
-
-                @Override
-                public STATE execute() {
+                public STATE execute(float destinationX, float destinationY) {
                     action.mymove();
                     return DONE;
                 }

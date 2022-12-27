@@ -21,13 +21,17 @@ import static util.utilMethods.get;
 public class Armament  {
     ActionHandler attackHandler;
     LinkedList<AdditionalAction> additionalActions =new LinkedList<>();
+    ActionHandler onEquip;
+    ActionHandler onUnequip;
+
+
 
     long attackDuration;
     int damage;
     int velocity;
     int ID;
     private static int counter=0;
-    ActionHandler onEquip;
+
     WeaponName name;
     Body wielder;
     int range;
@@ -84,7 +88,7 @@ public class Armament  {
             }
 
             @Override
-            public STATE execute() {
+            public STATE execute(float destinationX, float destinationY) {
                 Log.a("putting on "+name);
                 return STATE.NOTDONE;
             }
@@ -125,21 +129,20 @@ public class Armament  {
             }
 
             @Override
-            public STATE execute() {
+            public STATE execute(float destinationX, float destinationY) {
                 int x,y;
                 x= (int) get(wielder.getPosition().x)+150;
                 y= (int) get(wielder.getPosition().y)+150;
                 int xd,yd;
-                xd= Gdx.input.getX();
-                yd=Gdx.input.getY();
+
 
                 Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
                 //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
                 bullet.getFixtureList().get(0).setSensor(true);
 
                 Vector2 direction=new Vector2();
-                direction.x=(xd-x)*velocity;
-                direction.y=-(yd-y)*velocity;
+                direction.x=(destinationX-x)*velocity;
+                direction.y=-(destinationY-y)*velocity;
                 bullet.applyLinearImpulse(direction,bullet.getWorldCenter(),true);
                 return STATE.NOTDONE;
             }
@@ -172,7 +175,7 @@ public class Armament  {
         }
 
         @Override
-        public STATE execute() {
+        public STATE execute(float destinationX, float destinationY) {
             float cx,cy, x,y;
             x=get(wielder.getPosition().x)+150;
             y=get(wielder.getPosition().y)+150;
@@ -180,8 +183,8 @@ public class Armament  {
             cx=Gdx.input.getX();
             cy=Gdx.input.getY();
 
-            x=cx-x;
-            y=-(cy-y);
+            x=destinationX-x;
+            y=-(destinationY-y);
 
             //determine correct factor
             float directionDegree=(float)toDegrees(atan2(y,x));
@@ -216,8 +219,20 @@ public class Armament  {
     public void attack(int x, int y) {
 
         Action actionrightHand=Action.createAction(ActionType.ATTACK,wielder);
+        actionrightHand.setX(x);
+        actionrightHand.setY(y);
         actionrightHand.setStatsByArmament(this);
         actionrightHand.link();
+
+    }
+
+    public void unequip() {
+        if(onUnequip!=null){
+            onUnequip.before();
+            onUnequip.before();
+            onUnequip.execute(0,0);
+            onUnequip.after();
+        }
 
     }
 
@@ -289,6 +304,12 @@ public class Armament  {
     public void setAngle(int angle) {
         this.angle = angle;
     }
+    public ActionHandler getOnUnequip() {
+        return onUnequip;
+    }
 
+    public void setOnUnequip(ActionHandler onUnequip) {
+        this.onUnequip = onUnequip;
+    }
 
 }

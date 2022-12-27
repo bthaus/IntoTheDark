@@ -43,9 +43,18 @@ public class Character {
 
     public void equipArmament(Armament armament,Slot slot){
         switch (slot){
-            case RIGHTHAND:equipment.rightHand=armament;armament.setWielder(body);break;
+            case RIGHTHAND:equipment.rightHand=armament;break;
+            case LEFTHAND:equipment.leftHand=armament;break;
+            case BOTHHANDS:equipment.rightHand=armament; unequip(Slot.LEFTHAND);break;
         }
+        armament.setWielder(body);
 
+    }
+
+    private void unequip(Slot slot) {
+        switch (slot){
+            case LEFTHAND:equipment.leftHand.unequip();
+        }
     }
 
     boolean onHold=false;
@@ -68,7 +77,7 @@ public class Character {
 
                 action.handler.before();
                 action.handler.onStart();
-                state=action.handler.execute();
+                state=action.handler.execute(action.x, action.y);
 
                 if(state.equals(STATE.DONE)) action.handler.after();
                 else    {
@@ -85,22 +94,18 @@ public class Character {
         actions.add(action);
     }
     public void addAttackAction(int x, int y){
+        //todo: generify the actionhandler to take this x and y
         if(equipment.rightHand!=null){
             equipment.rightHand.attack(x,y);
 
         }
         if(equipment.leftHand!=null){
-            Action actionleftHand=Action.createAction(ActionType.ATTACK,body);
-            actionleftHand.setStatsByArmament(equipment.leftHand);
-            actionleftHand.link();
+          equipment.leftHand.attack(x,y);
         }
         for (AdditionalAction attack: equipment.getAllAdditionalAttacks()
              ) {
             attack.execute(body);
         }
-
-
-
 
     }
 
