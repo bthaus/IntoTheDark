@@ -2,7 +2,9 @@ package Handler;
 
 import Types.STATE;
 
-public interface ActionHandler {
+import java.io.Serializable;
+
+public interface ActionHandler extends Serializable {
 
     public void  before();
     public void  onStart();

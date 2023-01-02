@@ -29,6 +29,7 @@ public class WorldHolder {
     public OrthographicCamera camera;
     public OrthographicCamera lightscam;
     private Map<WeaponName, Armament> armaments=new HashMap<>();
+    public Map<Integer, WeaponName> index=new HashMap<>();
 
     public void init() {
         batch = new SpriteBatch();
@@ -157,5 +158,9 @@ public class WorldHolder {
 
     public void addCustomListener(ContactListener contactListener){
         world.setContactListener(contactListener);
+    }
+
+    public Armament getArmamentByID(int y) {
+        return armaments.get(index.get(y));
     }
 }

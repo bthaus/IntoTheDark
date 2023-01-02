@@ -4,23 +4,24 @@ import Handler.ActionHandler;
 import Types.*;
 import com.badlogic.gdx.physics.box2d.Body;
 import util.PhysicsTable;
-import util.Moment;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import static Types.STATE.DONE;
 import static util.utilMethods.*;
 
-public class Action {
+public class Action implements Serializable {
     public LinkedList<ActionType> actionFilter=new LinkedList<>();
     int actionID=0;
 Body actor;
 
 ActionType type;
-Moment startTime;
+
 long duration=0;
 public  ActionHandler handler;
 Direction direction;
+//x and y pose as store for multiple use cases. in case of equip action the slot is stored in x, ind the case of move the direction is stored.
 int x, y;
 
     public int getX() {
@@ -61,9 +62,9 @@ int x, y;
     }
 
     private void mymove() {
-        switch (direction){
-            case LEFT: actor.applyLinearImpulse(PhysicsTable.walkingSpeedLeft,actor.getWorldCenter(),true);break;
-            case RIGHT: actor.applyLinearImpulse(PhysicsTable.walkingSpeedRight,actor.getWorldCenter(),true);break;
+        switch (x){
+            case -1: actor.applyLinearImpulse(PhysicsTable.walkingSpeedLeft,actor.getWorldCenter(),true);break;
+            case 1: actor.applyLinearImpulse(PhysicsTable.walkingSpeedRight,actor.getWorldCenter(),true);break;
         }
     }
 
@@ -142,9 +143,10 @@ int x, y;
     }
 
 
-    static Action createAction(ActionType type, Body actor, Direction direction){
+    static Action createAction(ActionType type, Body actor, int x, int y){
       Action action=createAction(type,actor);
-        action.setDirection(direction);
+        action.setX(x);
+        action.setY(y);
         return action;
     }
     public  void link(){
@@ -157,5 +159,13 @@ int x, y;
 
     public void setBlockingTypes(LinkedList<ActionType> types) {
         this.actionFilter=types;
+    }
+
+    public ActionType getType() {
+        return this.type;
+    }
+
+    public Character getActor() {
+        return getCharacter(actor);
     }
 }

@@ -16,19 +16,21 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import util.PhysicsTable;
 import util.*;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import static util.utilMethods.*;
 
-public class Universe {
-    WorldHolder holder;
+public class Universe{
+    public WorldHolder holder;
     Body hero;
     Character heroChar;
     LinkedList<Body>toRemove=new LinkedList<>();
     LinkedList<ConeLight>coneLights=new LinkedList<>();
 
-
-
+    public  Body getBodyByID(int parseInt) {
+        return hero;
+    }
 
 
     public void init(){
@@ -176,10 +178,10 @@ public class Universe {
             Action.createAction(ActionType.JUMP,hero).link();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            Action.createAction(ActionType.MOVE,hero, Direction.RIGHT).link();
+            Action.createAction(ActionType.MOVE,hero, 1,0).link();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            Action.createAction(ActionType.MOVE,hero, Direction.LEFT).link();
+            Action.createAction(ActionType.MOVE,hero, -1,0).link();
         }
 
     }

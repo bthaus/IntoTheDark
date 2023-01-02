@@ -23,6 +23,7 @@ public class Armament  {
     LinkedList<AdditionalAction> additionalActions =new LinkedList<>();
     ActionHandler onEquip;
     ActionHandler onUnequip;
+    Slot slot;
 
 
 
@@ -62,6 +63,8 @@ public class Armament  {
         Action action=Action.createAction(ActionType.EQUIP,wielder);
         action.setActionHandler(onEquip);
         action.setDuration(equipDuration);
+        action.setX(slot.ordinal());
+        action.setY(this.ID);
         LinkedList<ActionType>blockingtypes=new LinkedList<>();
         blockingtypes.add(ActionType.MOVE);
         blockingtypes.add(ActionType.ATTACK);
@@ -251,6 +254,7 @@ public class Armament  {
     }
 
     public void setName(WeaponName name) {
+        global.universe.holder.index.put(this.ID,name);
         this.name = name;
     }
 

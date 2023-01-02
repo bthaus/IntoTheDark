@@ -3,10 +3,7 @@ package com.mygdx.game;
 import Types.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
-import util.AdditionalAction;
-import util.PhysicsTable;
-import util.TypeHolder;
-import util.Watch;
+import util.*;
 
 import java.util.LinkedList;
 
@@ -19,6 +16,7 @@ public class Character {
     Equipment equipment;
     Friend friend=null;
     Texture texture;
+
     UnitType unitType=UnitType.DEFAULT;
     boolean isTerrain=false;
     CollisionHandler collisionHandler=new CollisionHandler(this);
@@ -32,9 +30,13 @@ public class Character {
     LinkedList<ActionType>actionFilter=new LinkedList<>();
     Action blockingAction;
 
+    static int counter=0;
+    int ID;
+
 
 
     public Character(Body body) {
+        this.ID=counter++;
         this.body=body;
         this.equipment=new Equipment();
         this.equipment.rightHand =new Armament();
@@ -58,8 +60,14 @@ public class Character {
     }
 
     boolean onHold=false;
+    static int actioncounter=0;
     public void doActions() {
         STATE state=STATE.NOTDONE;
+       if(actions.size()!=0) {
+
+
+           Log.a(String.valueOf(actions.size())+"         "+actioncounter);
+       }
 
         if(this.watch.active()&&watch.done())
         {
@@ -74,10 +82,12 @@ public class Character {
         for (Action action:actions
              ) {
             if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)) continue;
-
+                if(global.host!=null) global.host.addAction(action);
+                actioncounter+=actions.size();
                 action.handler.before();
                 action.handler.onStart();
                 state=action.handler.execute(action.x, action.y);
+                global.host.addAction(action);
 
                 if(state.equals(STATE.DONE)) action.handler.after();
                 else    {
@@ -94,7 +104,7 @@ public class Character {
         actions.add(action);
     }
     public void addAttackAction(int x, int y){
-        //todo: generify the actionhandler to take this x and y
+
         if(equipment.rightHand!=null){
             equipment.rightHand.attack(x,y);
 
@@ -247,5 +257,13 @@ public class Character {
             default: break;
         }
         System.out.println(mode);
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public Body getBody() {
+        return this.body;
     }
 }
