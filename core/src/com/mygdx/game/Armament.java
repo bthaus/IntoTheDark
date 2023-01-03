@@ -17,8 +17,10 @@ import java.util.LinkedList;
 import static java.lang.Math.atan2;
 import static java.lang.Math.toDegrees;
 import static util.utilMethods.get;
+import static util.utilMethods.getCharacter;
 
 public class Armament  {
+    Armament armament;
     ActionHandler attackHandler;
     LinkedList<AdditionalAction> additionalActions =new LinkedList<>();
     ActionHandler onEquip;
@@ -40,7 +42,7 @@ public class Armament  {
     Texture texture;
     Vector2 offset;
     LinkedList<ActionType> actionFilter=new LinkedList<>();
-    long equipDuration=100;
+    long equipDuration=350;
 
     public void addAdditionalAction(ActionHandler handler, long cooldown, TriggerType triggerType){
         additionalActions.add(new AdditionalAction(handler,cooldown,triggerType));
@@ -66,10 +68,7 @@ public class Armament  {
         action.setX(slot.ordinal());
         action.setY(this.ID);
         LinkedList<ActionType>blockingtypes=new LinkedList<>();
-        blockingtypes.add(ActionType.MOVE);
-        blockingtypes.add(ActionType.ATTACK);
-        blockingtypes.add(ActionType.JUMP);
-        blockingtypes.add(ActionType.REVIVE);
+        blockingtypes.add(ActionType.ALL);
         action.setBlockingTypes(blockingtypes);
         action.link();
 
@@ -92,17 +91,30 @@ public class Armament  {
 
             @Override
             public STATE execute(float destinationX, float destinationY) {
-                Log.a("putting on "+name);
+                Log.a("putting on " + name);
                 return STATE.NOTDONE;
             }
 
             @Override
             public void after() {
+                switch (slot) {
+                    case RIGHTHAND:
+                        getCharacter(wielder).equipment.rightHand =armament; break;
+                    case LEFTHAND:
+                        getCharacter(wielder).equipment.leftHand = armament;  break;
 
+                    case BOTHHANDS:
+                        getCharacter(wielder).equipment.rightHand = armament;
+                        getCharacter(wielder).unequip(Slot.LEFTHAND);
+                        break;
+
+                }
             }
         };
         ID=counter++;
         actionFilter.add(ActionType.ATTACK);
+        this.armament=this;
+
     }
 
 

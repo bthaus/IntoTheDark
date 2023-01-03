@@ -68,9 +68,7 @@ int x, y;
             case -1: if(y==0){
                 actor.applyLinearImpulse(PhysicsTable.walkingSpeedLeft,actor.getWorldCenter(),true);
                 getActor().moveleft=this;
-                Log.t("set moveleft to action");
             }else{
-                Log.t("set moveleft to null");
                 getActor().moveleft=null;
             }break;
             case 1: if(y==0){

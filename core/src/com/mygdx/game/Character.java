@@ -46,18 +46,18 @@ public class Character {
 
 
     public void equipArmament(Armament armament,Slot slot){
-        switch (slot){
+       /* switch (slot){
             case RIGHTHAND:equipment.rightHand=armament;break;
             case LEFTHAND:equipment.leftHand=armament;break;
             case BOTHHANDS:equipment.rightHand=armament; unequip(Slot.LEFTHAND);break;
-        }
+        }*/
         armament.setWielder(body);
 
     }
 
-    private void unequip(Slot slot) {
+    void unequip(Slot slot) {
         switch (slot){
-            case LEFTHAND:equipment.leftHand.unequip();
+            case LEFTHAND:if(equipment.leftHand!=null)equipment.leftHand.unequip();
         }
     }
 
@@ -84,7 +84,16 @@ public class Character {
         actionsToAdd.clear();
         for (Action action:actions
              ) {
-            if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)) continue;
+            if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)){
+                if(action.getType().equals(ActionType.MOVE)){
+                    //workaround for move optimization
+                    global.universe.pressedA=false;
+                    global.universe.pressedD=false;
+                    moveleft=null;
+                    moveright=null;
+                }
+                continue;
+            }
 
                 if(global.host!=null&&action.tosend) global.host.addAction(action);
 
@@ -103,7 +112,7 @@ public class Character {
 
 
         }
-        //todo: optimize moving
+
          actions.clear();
        if(moveright!=null){
            moveright.tosend=false;

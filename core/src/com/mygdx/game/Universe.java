@@ -46,7 +46,7 @@ public class Universe{
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-        PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+        //PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 
@@ -138,41 +138,19 @@ public class Universe{
 
     }
 
-    private boolean pressedA=false;
-    private boolean pressedD =false;
+    public boolean pressedA=false;
+    public boolean pressedD =false;
     public void getUserInput(){
         if (Gdx.input.isTouched()){
             heroChar.addAttackAction(Gdx.input.getX(),Gdx.input.getY());
 
         }
+
         if(Gdx.input.isKeyPressed(Input.Keys.X)){
-          final Action action=  Action.createAction(ActionType.SWITCHPRIMARY,hero);
-          LinkedList<ActionType>types=new LinkedList<>();
-          types.add(ActionType.ALL);
-          action.setBlockingTypes(types);
-          action.setActionHandler(new ActionHandler() {
-              @Override
-              public void before() {
+            //todo: implement actual weapon switching
+                if(!heroChar.equipment.rightHand.name.equals(WeaponName.TORCH)) heroChar.equipArmament(holder.getArmament(WeaponName.TORCH),Slot.RIGHTHAND);
+                else heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
 
-              }
-
-              @Override
-              public void onStart() {
-
-              }
-
-              @Override
-              public STATE execute(float destinationX, float destinationY) {
-                  return STATE.NOTDONE;
-              }
-
-              @Override
-              public void after() {
-                if(!getCharacter(action.actor).equipment.rightHand.name.equals(WeaponName.TORCH)) getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.TORCH),Slot.RIGHTHAND);
-                else getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-              }
-          });
-          action.link();
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
