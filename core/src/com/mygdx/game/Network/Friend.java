@@ -5,12 +5,15 @@ import Types.Slot;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.net.Socket;
 import com.mygdx.game.Action;
+import com.mygdx.game.Character;
 import com.mygdx.game.Universe;
 import util.Log;
 import util.global;
 
 import java.io.*;
 import java.util.Objects;
+
+import static util.utilMethods.getCharacter;
 
 public class Friend extends Thread{
 
@@ -39,7 +42,7 @@ Character character;
         Action msg;
         while(true){
             try {
-              handleMessage(in.readLine());
+              parseAction(in.readLine());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -47,22 +50,28 @@ Character character;
 
     }
 
-    private void handleMessage(String readLine) {
-        Action action=parseAction(readLine);
-    }
 
-    private Action parseAction(String readLine) {
+
+    private void parseAction(String readLine) {
         String arr[]=readLine.split(" ");
-        Action action=Action.createAction(Objects.requireNonNull(ActionType.getType(arr[0])), global.universe.getBodyByID(Integer.parseInt(arr[1])));
-        action.setX(Integer.parseInt(arr[2]));
-        action.setY(Integer.parseInt(arr[3]));
+
+        Action action=Action.createAction(Objects.requireNonNull(ActionType.getType(arr[0])),global.universe.getBodyByID(Integer.parseInt(arr[1])));
+        Character actor=getCharacter(global.universe.getBodyByID(Integer.parseInt(arr[1])));
+        int x=Integer.parseInt(arr[2]);
+        int y=Integer.parseInt(arr[3]);
+        action.setX(x);
+        action.setY(y);
 
         //todo: fix ambiguity concerning linking of actoins
         //in equip the actoin is already linked, in every other case it is not
         switch (action.getType()){
-            case ATTACK:action.setStatsByArmament(global.universe.holder.getArmamentByID(action.getY()));break;
-            case EQUIP: action.getActor().equipArmament(global.universe.holder.getArmamentByID(action.getY()), Objects.requireNonNull(Slot.getSlot(action.getX())));
+            case ATTACK:actor.addAttackAction(x,y);break;
+            case EQUIP: actor.equipArmament(global.universe.holder.getArmamentByID(y), Objects.requireNonNull(Slot.getSlot(x)));break;
+            case JUMP: //same as move
+            case MOVE: action.link();break;
         }
+
+
     }
 
 

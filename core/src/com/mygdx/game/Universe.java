@@ -35,8 +35,9 @@ public class Universe{
 
     public void init(){
         holder = new WorldHolder();
-        holder.init();
         global.universe=this;
+        holder.init();
+
 
         debuginit();
 

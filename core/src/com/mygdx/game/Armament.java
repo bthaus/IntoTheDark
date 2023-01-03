@@ -239,6 +239,10 @@ public class Armament  {
 
     }
 
+    public void setSlot(Slot righthand) {
+        this.slot=righthand;
+    }
+
     enum Type{
         WEAPON,
         SHIELD,

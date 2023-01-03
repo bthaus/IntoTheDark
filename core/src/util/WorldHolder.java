@@ -1,10 +1,7 @@
 package util;
 
 import Handler.ActionHandler;
-import Types.STATE;
-import Types.TriggerType;
-import Types.UnitType;
-import Types.WeaponName;
+import Types.*;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -69,6 +66,7 @@ public class WorldHolder {
         shuriken.setStandardThrowingWeaponHandler();
         shuriken.setName(WeaponName.SHURIKEN);
         shuriken.setAttackDuration(200);
+        shuriken.setSlot(Slot.RIGHTHAND);
         shuriken.setDamage(20);
         shuriken.setVelocity(1);
         shuriken.addAdditionalAction(new ActionHandler() {
@@ -111,6 +109,7 @@ public class WorldHolder {
         torch.setName(WeaponName.TORCH);
         torch.setAttackDuration(0);
         torch.setDamage(0);
+        torch.setSlot(Slot.BOTHHANDS);
         torch.setAngle(15);
         torch.setRange(10);
         torch.setEquipDuration(1000);

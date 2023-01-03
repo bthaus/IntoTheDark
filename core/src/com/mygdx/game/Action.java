@@ -149,11 +149,12 @@ int x, y;
         action.setY(y);
         return action;
     }
+    private boolean linked=false;
     public  void link(){
 
         Character temp= (Character) actor.getUserData();
-
-        temp.addAction(this);
+        if(!linked) temp.addAction(this);
+        linked=true;
     }
 
 

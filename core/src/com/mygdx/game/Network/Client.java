@@ -26,6 +26,7 @@ public class Client extends Thread{
     public void run() {
 
         socket= Gdx.net.newClientSocket(Net.Protocol.TCP,adress,port,new SocketHints());
+
        Log.n("connected, yay :D");
         in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -34,7 +35,8 @@ public class Client extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        new Friend(socket).start();
+        /*
         System.out.println("started listening");
         while(true){
             try {
@@ -44,6 +46,6 @@ public class Client extends Thread{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 }
