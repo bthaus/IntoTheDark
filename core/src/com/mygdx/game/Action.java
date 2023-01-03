@@ -3,6 +3,7 @@ package com.mygdx.game;
 import Handler.ActionHandler;
 import Types.*;
 import com.badlogic.gdx.physics.box2d.Body;
+import util.Log;
 import util.PhysicsTable;
 
 import java.io.Serializable;
@@ -17,7 +18,7 @@ public class Action implements Serializable {
 Body actor;
 
 ActionType type;
-
+boolean tosend=true;
 long duration=0;
 public  ActionHandler handler;
 Direction direction;
@@ -62,10 +63,24 @@ int x, y;
     }
 
     private void mymove() {
+
         switch (x){
-            case -1: actor.applyLinearImpulse(PhysicsTable.walkingSpeedLeft,actor.getWorldCenter(),true);break;
-            case 1: actor.applyLinearImpulse(PhysicsTable.walkingSpeedRight,actor.getWorldCenter(),true);break;
+            case -1: if(y==0){
+                actor.applyLinearImpulse(PhysicsTable.walkingSpeedLeft,actor.getWorldCenter(),true);
+                getActor().moveleft=this;
+                Log.t("set moveleft to action");
+            }else{
+                Log.t("set moveleft to null");
+                getActor().moveleft=null;
+            }break;
+            case 1: if(y==0){
+                actor.applyLinearImpulse(PhysicsTable.walkingSpeedRight,actor.getWorldCenter(),true);
+                getActor().moveright=this;
+            }else{
+                getActor().moveright=null;
+            }break;
         }
+
     }
 
     public void setDuration(long i){
@@ -155,6 +170,7 @@ int x, y;
         Character temp= (Character) actor.getUserData();
         if(!linked) temp.addAction(this);
         linked=true;
+
     }
 
 

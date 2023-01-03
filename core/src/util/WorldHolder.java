@@ -65,7 +65,7 @@ public class WorldHolder {
         final Armament shuriken=new Armament();
         shuriken.setStandardThrowingWeaponHandler();
         shuriken.setName(WeaponName.SHURIKEN);
-        shuriken.setAttackDuration(200);
+        shuriken.setAttackDuration(800);
         shuriken.setSlot(Slot.RIGHTHAND);
         shuriken.setDamage(20);
         shuriken.setVelocity(1);

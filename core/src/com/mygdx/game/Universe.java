@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import util.PhysicsTable;
 import util.*;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 
 import static util.utilMethods.*;
@@ -139,7 +138,8 @@ public class Universe{
 
     }
 
-
+    private boolean pressedA=false;
+    private boolean pressedD =false;
     public void getUserInput(){
         if (Gdx.input.isTouched()){
             heroChar.addAttackAction(Gdx.input.getX(),Gdx.input.getY());
@@ -179,10 +179,24 @@ public class Universe{
             Action.createAction(ActionType.JUMP,hero).link();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            Action.createAction(ActionType.MOVE,hero, 1,0).link();
+            if(!pressedD){
+                Action.createAction(ActionType.MOVE,hero, 1,0).link();
+                pressedD=true;
+            }
+
+        }else if(pressedD){
+            Action.createAction(ActionType.MOVE,hero, 1,1).link();
+            pressedD=false;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            Action.createAction(ActionType.MOVE,hero, -1,0).link();
+            if(!pressedA){
+                Action.createAction(ActionType.MOVE,hero, -1,0).link();
+                pressedA=true;
+            }
+
+        }else if(pressedA){
+            Action.createAction(ActionType.MOVE,hero, -1,1).link();
+            pressedA=false;
         }
 
     }

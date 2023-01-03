@@ -16,19 +16,21 @@ public class Character {
     Equipment equipment;
     Friend friend=null;
     Texture texture;
-
     UnitType unitType=UnitType.DEFAULT;
     boolean isTerrain=false;
     CollisionHandler collisionHandler=new CollisionHandler(this);
     TerrainType terrainType=TerrainType.DEFAULT;
     BlockType blockType;
     LinkedList<Action>actions=new LinkedList<>();
+    LinkedList<Action>actionsToAdd=new LinkedList<>();
     LinkedList<Body>touchedFloors=new LinkedList<>();
     Body body;
     Mode mode=Mode.ATTACKMODE;
-
     LinkedList<ActionType>actionFilter=new LinkedList<>();
     Action blockingAction;
+    Action moveright;
+    Action moveleft;
+
 
     static int counter=0;
     int ID;
@@ -78,16 +80,19 @@ public class Character {
 
 
         }
-
+        actions.addAll(actionsToAdd);
+        actionsToAdd.clear();
         for (Action action:actions
              ) {
             if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)) continue;
-                if(global.host!=null) global.host.addAction(action);
+
+                if(global.host!=null&&action.tosend) global.host.addAction(action);
+
                 actioncounter+=actions.size();
                 action.handler.before();
                 action.handler.onStart();
                 state=action.handler.execute(action.x, action.y);
-                global.host.addAction(action);
+              //  global.host.addAction(action);
 
                 if(state.equals(STATE.DONE)) action.handler.after();
                 else    {
@@ -98,10 +103,19 @@ public class Character {
 
 
         }
+        //todo: optimize moving
          actions.clear();
+       if(moveright!=null){
+           moveright.tosend=false;
+            addAction(moveright);
+       }
+       if(moveleft!=null){
+           moveleft.tosend=false;
+           addAction(moveleft);
+       }
     }
     public void addAction(Action action){
-        actions.add(action);
+       actionsToAdd.add(action);
     }
     public void addAttackAction(int x, int y){
 
