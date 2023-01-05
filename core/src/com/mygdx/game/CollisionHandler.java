@@ -17,59 +17,86 @@ public class CollisionHandler {
     //making the correct  assignment and the addition of custom handlers a little tricky and cumbersome
     Character character;
     LinkedList<TerrainCollisionHandler> tch=new LinkedList<>();
+    static public LinkedList<TerrainCollisionHandler> standarttch=new LinkedList<>();
     LinkedList<UnitCollisionHandler> uch=new LinkedList<>();
+    static public LinkedList<UnitCollisionHandler> standartuch=new LinkedList<>();
+
     public CollisionHandler(Character character) {
+        tch.addAll(standarttch);
+        uch.addAll(standartuch);
         this.character=character;
     }
 
-    public void handleTerrainCollision(Body bodyB,HandlerType type ) {
+    public void handleTerrainCollision(Body bodyB,LinkedList<HandlerType> handlerTypes ) {
 
 
         for (TerrainCollisionHandler t:tch
              ) {
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(t.getName().equals(h))
+                    t.collideWith(bodyB, character.body);
+            }
+            }
 
-            if(t.getName().equals(type))
-               t.collideWith(bodyB);
-        }
     }
 
-    public void handleUnitCollision(Body bodyB, HandlerType handlerType) {
+    public void handleUnitCollision(Body bodyB, LinkedList<HandlerType> handlerTypes) {
 
         for (UnitCollisionHandler u:uch) {
-
-            if(u.getName().equals(handlerType)){
-                u.collideWith(bodyB);
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(u.getName().equals(h)){
+                    u.collideWith(bodyB, character.body);
+                }
             }
+
         }
     }
 
-    public void handleTerrainDetachment(Body bodyB,HandlerType type) {
+    public void handleTerrainDetachment(Body bodyB,LinkedList<HandlerType> handlerTypes) {
 
         for (TerrainCollisionHandler t:tch) {
-            if(t.getName().equals(type)) {
-                 t.detachFrom(bodyB);
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(t.getName().equals(h)) {
+                    t.detachFrom(bodyB, character.body);
+                }
             }
+
         }
     }
 
-    public void handleUnitDetachment(Body bodyB, HandlerType handlerType) {
+    public void handleUnitDetachment(Body bodyB, LinkedList<HandlerType> handlerTypes) {
 
         for (UnitCollisionHandler u:uch
         ) {
-            if(u.getName().equals(handlerType)){
+            for (HandlerType h:handlerTypes
+                 ) {
+                if(u.getName().equals(h)){
 
-                u.detachFrom(bodyB);
+                    u.detachFrom(bodyB, character.body);
+                }
             }
+
 
         }
     }
 
+    static public void setStandartTerrainHandler(TerrainCollisionHandler handler){
+        handler.setTypeCombination();
+        standarttch.add(handler);
+    }
+    static public void setStandartUnitHandler(UnitCollisionHandler handler){
+        handler.setTypeCombination();
+        standartuch.add(handler);
+    }
     public void setCustomTerrainCollisionHandler(TerrainCollisionHandler handler){
         handler.setTypeCombination();
         tch.add(handler);
     }
     public void setCustomUnitCollisionHandler(UnitCollisionHandler handler){
-
+        System.out.println("typeholder added");
         handler.setTypeCombination();
         uch.add(handler);
     }

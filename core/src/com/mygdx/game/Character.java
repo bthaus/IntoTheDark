@@ -1,14 +1,9 @@
 package com.mygdx.game;
 
-import Types.BlockType;
-import Types.HandlerType;
-import Types.TerrainType;
-import Types.UnitType;
+import Types.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
-import util.PhysicsTable;
-import util.TypeHolder;
-import util.global;
+import util.*;
 
 import java.util.LinkedList;
 
@@ -16,7 +11,7 @@ import static util.utilMethods.getCharacter;
 
 //is saved in body.UserData
 public class Character {
-
+    Watch watch=new Watch();
     Stats stats;
     Equipment equipment;
     Friend friend=null;
@@ -27,65 +22,149 @@ public class Character {
     TerrainType terrainType=TerrainType.DEFAULT;
     BlockType blockType;
     LinkedList<Action>actions=new LinkedList<>();
+    LinkedList<Action>actionsToAdd=new LinkedList<>();
     LinkedList<Body>touchedFloors=new LinkedList<>();
     Body body;
+    Mode mode=Mode.ATTACKMODE;
+    LinkedList<ActionType>actionFilter=new LinkedList<>();
+    Action blockingAction;
+    Action moveright;
+    Action moveleft;
+
+
+    static int counter=0;
+    int ID;
+
+
 
     public Character(Body body) {
+        this.ID=counter++;
         this.body=body;
+        this.equipment=new Equipment();
+        this.equipment.rightHand =new Armament();
     }
 
 
+    public void equipArmament(Armament armament,Slot slot){
+        switch (slot){
+            case RIGHTHAND:equipment.rightHand=armament;break;
+            case LEFTHAND:equipment.leftHand=armament;break;
+            case BOTHHANDS:equipment.rightHand=armament; unequip(Slot.LEFTHAND);break;
+        }
+        armament.setWielder(body);
+
+    }
+
+    private void unequip(Slot slot) {
+        switch (slot){
+            case LEFTHAND:equipment.leftHand.unequip();
+        }
+    }
+
+    boolean onHold=false;
+    static int actioncounter=0;
     public void doActions() {
+        STATE state=STATE.NOTDONE;
+       if(actions.size()!=0) {
+
+
+           Log.a(String.valueOf(actions.size())+"         "+actioncounter);
+       }
+
+        if(this.watch.active()&&watch.done())
+        {
+                watch=new Watch();
+                actionFilter.clear();
+                blockingAction.handler.after();
+                blockingAction=null;
+
+
+        }
+        actions.addAll(actionsToAdd);
+        actionsToAdd.clear();
         for (Action action:actions
              ) {
-            action.execute();
+            if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)) continue;
+
+                if(global.host!=null&&action.tosend) global.host.addAction(action);
+
+                actioncounter+=actions.size();
+                action.handler.before();
+                action.handler.onStart();
+                state=action.handler.execute(action.x, action.y);
+              //  global.host.addAction(action);
+
+                if(state.equals(STATE.DONE)) action.handler.after();
+                else    {
+                    watch.start(action.duration);
+                    actionFilter=action.actionFilter;
+                    blockingAction=action;
+                }
+
+
         }
-        actions.clear();
+        //todo: optimize moving
+         actions.clear();
+       if(moveright!=null){
+           moveright.tosend=false;
+            addAction(moveright);
+       }
+       if(moveleft!=null){
+           moveleft.tosend=false;
+           addAction(moveleft);
+       }
     }
     public void addAction(Action action){
-        actions.add(action);
+       actionsToAdd.add(action);
+    }
+    public void addAttackAction(int x, int y){
+
+        if(equipment.rightHand!=null){
+            equipment.rightHand.attack(x,y);
+
+        }
+        if(equipment.leftHand!=null){
+          equipment.leftHand.attack(x,y);
+        }
+        for (AdditionalAction attack: equipment.getAllAdditionalAttacks()
+             ) {
+            attack.execute(body);
+        }
+
     }
 
 
     public void collidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
-            collisionHandler.handleTerrainCollision(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+            collisionHandler.handleTerrainCollision(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getTerrainType()));
             return;
         }
         if(!body.isTerrain&&!isTerrain){
-            collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+            collisionHandler.handleUnitCollision(bodyB,TypeHolder.getHandlerType(body.getUnitType(),getUnitType()));
             return;
         }
        if(body.isTerrain){
-           collisionHandler.handleTerrainCollision(bodyB, global.getHandlerType(body.getTerrainType(),getUnitType()));
+           collisionHandler.handleTerrainCollision(bodyB, TypeHolder.getHandlerType(body.getTerrainType(),getUnitType()));
            return;
        }else{
-           collisionHandler.handleUnitCollision(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
+           collisionHandler.handleUnitCollision(bodyB,TypeHolder.getHandlerType(getTerrainType(), body.getUnitType()));
            return;
        }
 
     }
-    public HandlerType determineHandlerType(Body body, TerrainType terrainType){
-        TypeHolder holder=new TypeHolder(terrainType,getCharacter(body).getUnitType());
-        return holder.determineHandlerType();
-    }
-
-
-
-
     public void uncollidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
-            collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getTerrainType()));
+            collisionHandler.handleTerrainDetachment(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getTerrainType()));
         }
         if(!body.isTerrain&&!isTerrain){
-            collisionHandler.handleUnitDetachment(bodyB,global.getHandlerType(body.getUnitType(),getUnitType()));
+            collisionHandler.handleUnitDetachment(bodyB,TypeHolder.getHandlerType(body.getUnitType(),getUnitType()));
         }
         if(body.isTerrain){
-            collisionHandler.handleTerrainDetachment(bodyB,global.getHandlerType(body.getTerrainType(),getUnitType()));
+            collisionHandler.handleTerrainDetachment(bodyB,TypeHolder.getHandlerType(body.getTerrainType(),getUnitType()));
         }else{
-           collisionHandler.handleUnitDetachment(bodyB,global.getHandlerType(getTerrainType(), body.getUnitType()));
+           collisionHandler.handleUnitDetachment(bodyB,TypeHolder.getHandlerType(getTerrainType(), body.getUnitType()));
         }
     }
 
@@ -183,5 +262,22 @@ public class Character {
 
         }
 
+    }
+
+    public void switchMode() {
+        switch (mode){
+            case ATTACKMODE:mode=Mode.LIGHTMODE;break;
+            case LIGHTMODE:mode=Mode.ATTACKMODE;break;
+            default: break;
+        }
+        System.out.println(mode);
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public Body getBody() {
+        return this.body;
     }
 }

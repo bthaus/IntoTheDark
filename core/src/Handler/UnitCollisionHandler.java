@@ -5,8 +5,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 public interface UnitCollisionHandler {
 
-    public void collideWith(Body a);
-    public void detachFrom(Body a);
+    public void collideWith(Body hitter,Body hit);
+    public void detachFrom(Body hitter,Body hit);
     public HandlerType getName();
     public void setTypeCombination();
 }

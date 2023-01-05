@@ -1,37 +1,42 @@
 package com.mygdx.game;
 
+import Handler.ActionHandler;
 import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
+import box2dLight.ConeLight;
 import box2dLight.PointLight;
-import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import util.PhysicsTable;
 import util.*;
 
+import java.util.LinkedList;
+
 import static util.utilMethods.*;
 
-public class Universe {
-    WorldHolder holder;
+public class Universe{
+    public WorldHolder holder;
     Body hero;
     Character heroChar;
-    int checksum=0;
+    LinkedList<Body>toRemove=new LinkedList<>();
+    LinkedList<ConeLight>coneLights=new LinkedList<>();
 
-
-
+    public  Body getBodyByID(int parseInt) {
+        return hero;
+    }
 
 
     public void init(){
         holder = new WorldHolder();
+        global.universe=this;
         holder.init();
+
 
         debuginit();
 
@@ -40,27 +45,50 @@ public class Universe {
     private void debuginit() {
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
-        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
+        heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
+        PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+        CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
+
 
             @Override
-            public void collideWith(Body a) {
-                Character temp=getCharacter(a);
-
-                if(temp.getTerrainType().equals(TerrainType.FLOOR)){
-
-                    heroChar.addContact(a);
-
-                }
+            public void collideWith(Body hitter, Body hit) {
+               if (!toRemove.contains(hit))toRemove.add(hit);
             }
 
             @Override
-            public void detachFrom(Body a) {
+            public void detachFrom(Body hitter, Body hit) {
 
+            }
+
+            @Override
+            public HandlerType getName() {
+                return HandlerType.BULLETDISPOSAL;
+            }
+
+            @Override
+            public void setTypeCombination() {
+           TypeHolder.addTypeHolder(new TypeHolder(TerrainType.ALL,UnitType.BULLET,HandlerType.BULLETDISPOSAL));
+            }
+        });
+
+        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
+
+            @Override
+            public void collideWith(Body a,Body b) {
                 Character temp=getCharacter(a);
-                if(temp.getTerrainType().equals(TerrainType.FLOOR)){
-                    heroChar.decrContacts(a);
 
-                }
+
+                    heroChar.addContact(a);
+
+            }
+
+            @Override
+            public void detachFrom(Body hitter,Body b) {
+
+                Character temp=getCharacter(hitter);
+
+                    heroChar.decrContacts(hitter);
+
 
             }
 
@@ -71,66 +99,25 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
+                TypeHolder.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
             }
         });
-        heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
-            @Override
-            public void collideWith(Body a) {
-                Character body=getCharacter(a);
-                if(body.getTerrainType().equals(TerrainType.WALL)) System.out.println("collided with wall");
-            }
 
-            @Override
-            public void detachFrom(Body a) {
-                Character body=getCharacter(a);
-                if(body.getTerrainType().equals(TerrainType.WALL)) System.out.println("detached from wall");
 
-            }
 
-            @Override
-            public HandlerType getName() {
-                return HandlerType.WALLLISTENER;
-            }
 
-            @Override
-            public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(TerrainType.WALL,UnitType.HERO,HandlerType.WALLLISTENER));
-            }
-        });
+
         Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
-        getCharacter(hero).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
-            @Override
-            public void collideWith(Body a) {
-                Character body=getCharacter(a);
-                if(body.getUnitType().equals(UnitType.ENEMY)) System.out.println("hero hit an enemy");
-            }
-
-            @Override
-            public void detachFrom(Body a) {
-
-            }
-
-            @Override
-            public HandlerType getName() {
-                return HandlerType.ENEMYCOLLISION;
-            }
-
-            @Override
-            public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.HERO,HandlerType.ENEMYCOLLISION));
-            }
-        });
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
-            public void collideWith(Body a) {
-                if(getCharacter(a).getUnitType().equals(UnitType.HERO)){
-                    System.out.println("ouch, the hero hit me!");
-                }
+            public void collideWith(Body hitter,Body b) {
+                System.out.println("hit by bullet");
+                if(!toRemove.contains(hitter))  toRemove.add(hitter);
+
             }
 
             @Override
-            public void detachFrom(Body a) {
+            public void detachFrom(Body hitter,Body b) {
 
             }
 
@@ -141,28 +128,75 @@ public class Universe {
 
             @Override
             public void setTypeCombination() {
-                global.addTypeHolder(new TypeHolder(UnitType.HERO,UnitType.ENEMY,HandlerType.ENEMYHIT));
-
+                    TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET,UnitType.ENEMY,HandlerType.ENEMYHIT,true));
             }
         });
+
 
        addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
        addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
 
     }
 
-
+    private boolean pressedA=false;
+    private boolean pressedD =false;
     public void getUserInput(){
+        if (Gdx.input.isTouched()){
+            heroChar.addAttackAction(Gdx.input.getX(),Gdx.input.getY());
 
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.X)){
+          final Action action=  Action.createAction(ActionType.SWITCHPRIMARY,hero);
+          LinkedList<ActionType>types=new LinkedList<>();
+          types.add(ActionType.ALL);
+          action.setBlockingTypes(types);
+          action.setActionHandler(new ActionHandler() {
+              @Override
+              public void before() {
+
+              }
+
+              @Override
+              public void onStart() {
+
+              }
+
+              @Override
+              public STATE execute(float destinationX, float destinationY) {
+                  return STATE.NOTDONE;
+              }
+
+              @Override
+              public void after() {
+                if(!getCharacter(action.actor).equipment.rightHand.name.equals(WeaponName.TORCH)) getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.TORCH),Slot.RIGHTHAND);
+                else getCharacter(action.actor).equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
+              }
+          });
+          action.link();
+        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
             Action.createAction(ActionType.JUMP,hero).link();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            Action.createAction(ActionType.MOVE,hero, Direction.RIGHT).link();
+            if(!pressedD){
+                Action.createAction(ActionType.MOVE,hero, 1,0).link();
+                pressedD=true;
+            }
+
+        }else if(pressedD){
+            Action.createAction(ActionType.MOVE,hero, 1,1).link();
+            pressedD=false;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            Action.createAction(ActionType.MOVE,hero, Direction.LEFT).link();
+            if(!pressedA){
+                Action.createAction(ActionType.MOVE,hero, -1,0).link();
+                pressedA=true;
+            }
+
+        }else if(pressedA){
+            Action.createAction(ActionType.MOVE,hero, -1,1).link();
+            pressedA=false;
         }
 
     }
@@ -176,9 +210,14 @@ public class Universe {
         }
 
         holder.world.step(utilFields.getTimeStep(), utilFields.getVelocityIterations(), utilFields.getPositionIterations());
-
+        for (Body a:toRemove
+             ) {
+            holder.world.destroyBody(a);
+        }
+        toRemove.clear();
 
     }
+
     public void adjustCamera(){
        holder.camera.update();
         ScreenUtils.clear(0, 0, 0.2f, 1);
@@ -203,13 +242,28 @@ public class Universe {
         holder.batch.end();
     }
     public void lightUp(){
-        PointLight light= new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,500,500);
-        holder.rayHandler.setCombinedMatrix(holder.camera.combined);
+
+        holder.rayHandler.setCombinedMatrix(holder.lightscam.combined.scale(conversionFactor, conversionFactor,conversionFactor),set(holder.lightscam.position.x),set(holder.lightscam.position.y), holder.lightscam.viewportWidth*holder.lightscam.zoom, holder.lightscam.viewportHeight*holder.lightscam.zoom);
+
+        for (ConeLight cone:coneLights
+        ) {
+            cone.update();
+        }
         holder.rayHandler.updateAndRender();
+        holder.camera.update();
+        holder.lightscam.update();
+
+
 
 
     }
-    public void removeLights(){
+    public void removeLights() {
+
+        for (ConeLight c : coneLights) {
+            c.remove();
+        }
+
+            coneLights.clear();
 
     }
 
@@ -221,7 +275,7 @@ public class Universe {
         bodyDef.position.set(set(x), set(y));
         body= holder.world.createBody(bodyDef);
         PolygonShape dynamic=new PolygonShape();
-        dynamic.setAsBox(set(width), set(height));
+        dynamic.setAsBox(set(width),set(height));
 
         FixtureDef fixtureDef=new FixtureDef();
         fixtureDef.shape = dynamic;
@@ -250,13 +304,21 @@ public class Universe {
         groundbox.setAsBox(set(width),set(height));
         ground.createFixture(groundbox, density);
         Character chara=new Character(ground);
-        Texture text=new Texture(Gdx.files.internal(texture.concat(".png")));
+        Texture text;
+        try {
+             text=new Texture(Gdx.files.internal(texture));
+        } catch (Exception e) {
+             text=new Texture(Gdx.files.internal(texture.concat(".png")));
+        }
+
+
         chara.setTexture(text);
         chara.setTerrainType(type);
 
         ground.setUserData(chara);
         return ground;
     }
+
 
 
 
