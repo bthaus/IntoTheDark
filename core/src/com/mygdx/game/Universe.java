@@ -10,13 +10,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import util.PhysicsTable;
 import util.*;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import static util.utilMethods.*;
 
@@ -26,9 +30,17 @@ public class Universe{
     Character heroChar;
     LinkedList<Body>toRemove=new LinkedList<>();
     LinkedList<ConeLight>coneLights=new LinkedList<>();
+    Map<Integer,Character> activeBodies=new HashMap<>();
 
-    public  Body getBodyByID(int parseInt) {
+    public  Body getBodyByID(int characterID) {
         return hero;
+       // return activeBodies.get(characterID).body;
+    }
+    public void putActiveBody(Character unit){
+        activeBodies.put(unit.getID(), unit);
+    }
+    public void removeActiveBody(Character unit){
+        activeBodies.remove(unit.ID);
     }
 
 
@@ -46,7 +58,7 @@ public class Universe{
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-        //PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+        PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 
@@ -99,13 +111,12 @@ public class Universe{
 
             @Override
             public void setTypeCombination() {
-                TypeHolder.addTypeHolder(new TypeHolder(TerrainType.FLOOR,UnitType.HERO,HandlerType.TOUCHFLOOR));
+                LinkedList<TerrainType>types=new LinkedList<>();
+                types.add(TerrainType.FLOOR);
+                types.add(TerrainType.ICE);
+                TypeHolder.addTypeHolder(new TypeHolder(types,UnitType.HERO,HandlerType.TOUCHFLOOR));
             }
         });
-
-
-
-
 
         Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
@@ -154,7 +165,7 @@ public class Universe{
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-            Action.createAction(ActionType.JUMP,hero).link();
+           if(heroChar.canJump()) Action.createAction(ActionType.JUMP,hero).link();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
             if(!pressedD){
@@ -195,9 +206,24 @@ public class Universe{
         toRemove.clear();
 
     }
+    private float previousX=100;
+    private float previousY=500;
 
     public void adjustCamera(){
-       holder.camera.update();
+        Vector2 vector2=new Vector2(get(hero.getPosition().x)-previousX,get(hero.getPosition().y)-previousY);
+       // holder.camera.translate(vector2);
+        previousX=get(hero.getPosition().x);
+        previousY=get(hero.getPosition().y);
+        holder.camera.position.x=previousX;
+        holder.camera.position.y=previousY;
+
+        holder.lightscam.position.x=set(previousX);
+        holder.lightscam.position.y=set(previousY);
+
+       // holder.lightscam.translate(set(vector2.x),set(vector2.y));
+        holder.camera.update();
+        holder.lightscam.update();
+
         ScreenUtils.clear(0, 0, 0.2f, 1);
     }
     public void sendMessages(){

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import Handler.ActionHandler;
+import Handler.UnitCollisionHandler;
 import Types.*;
 import box2dLight.ConeLight;
 import com.badlogic.gdx.Gdx;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import util.AdditionalAction;
 import util.Log;
+import util.TypeHolder;
 import util.global;
 
 import java.util.LinkedList;
@@ -152,8 +154,29 @@ public class Armament  {
 
 
                 Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
+                getCharacter(bullet).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
+                    @Override
+                    public void collideWith(Body hitter, Body hit) {
+                        Log.t("bullet collided");
+                    }
+
+                    @Override
+                    public void detachFrom(Body hitter, Body hit) {
+
+                    }
+
+                    @Override
+                    public HandlerType getName() {
+                        return HandlerType.ENEMYHIT;
+                    }
+
+                    @Override
+                    public void setTypeCombination() {
+                        TypeHolder.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.BULLET,HandlerType.ENEMYHIT,true));
+                    }
+                });
                 //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
-                bullet.getFixtureList().get(0).setSensor(true);
+              //  bullet.getFixtureList().get(0).setSensor(true);
 
                 Vector2 direction=new Vector2();
                 direction.x=(destinationX-x)*velocity;

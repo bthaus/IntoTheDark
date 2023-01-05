@@ -16,7 +16,6 @@ public class Action implements Serializable {
     public LinkedList<ActionType> actionFilter=new LinkedList<>();
     int actionID=0;
 Body actor;
-
 ActionType type;
 boolean tosend=true;
 long duration=0;
