@@ -122,7 +122,7 @@ public class Universe{
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
             public void collideWith(Body hitter,Body b) {
-                System.out.println("hit by bullet");
+                Log.t("hit by bullet");
                 if(!toRemove.contains(hitter))  toRemove.add(hitter);
 
             }
@@ -164,8 +164,6 @@ public class Universe{
 
             //todo: map input to coordinates (first idea: get hero position and add/substract based on where clicked. attention: top left corner is 0 for y, hence hero is at 660 484~
             heroChar.addAttackAction(hx,hy);
-            Log.t(Gdx.input.getX()+" and y "+Gdx.input.getY());
-            Log.t("and hero: "+hero.getPosition().x+" and y "+hero.getPosition().y);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.X)){
@@ -306,6 +304,12 @@ public class Universe{
         dynamic.setAsBox(set(width),set(height));
 
         FixtureDef fixtureDef=new FixtureDef();
+
+        switch (type){
+            case HERO:
+            case BULLET:
+                fixtureDef.filter.groupIndex=-1;break;
+        }
         fixtureDef.shape = dynamic;
         fixtureDef.density = PhysicsTable.getDensity();
         fixtureDef.friction =PhysicsTable.getFriction();

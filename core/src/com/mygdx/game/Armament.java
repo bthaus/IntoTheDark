@@ -141,32 +141,8 @@ public class Armament  {
                 int x,y;
                 x= (int) get(wielder.getPosition().x)+150;
                 y= (int) get(wielder.getPosition().y)+150;
-                int xd,yd;
-
-
                 Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
-                getCharacter(bullet).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
-                    @Override
-                    public void collideWith(Body hitter, Body hit) {
-                        Log.t("bullet collided");
-                    }
 
-                    @Override
-                    public void detachFrom(Body hitter, Body hit) {
-
-                    }
-
-                    @Override
-                    public HandlerType getName() {
-                        return HandlerType.ENEMYHIT;
-                    }
-
-                    @Override
-                    public void setTypeCombination() {
-                        TypeHolder.addTypeHolder(new TypeHolder(UnitType.ENEMY,UnitType.BULLET,HandlerType.ENEMYHIT,true));
-                    }
-                });
-                //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
               //  bullet.getFixtureList().get(0).setSensor(true);
 
                 Vector2 direction=new Vector2();
