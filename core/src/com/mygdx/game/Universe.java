@@ -24,29 +24,31 @@ import java.util.Map;
 
 import static util.utilMethods.*;
 
-public class Universe{
+public class Universe {
     public WorldHolder holder;
     Body hero;
     Character heroChar;
-    LinkedList<Body>toRemove =new LinkedList<>();
-    LinkedList<ConeLight>coneLights=new LinkedList<>();
-    Map<Integer,Character> activeBodies=new HashMap<>();
+    LinkedList<Body> toRemove = new LinkedList<>();
+    LinkedList<ConeLight> coneLights = new LinkedList<>();
+    Map<Integer, Character> activeBodies = new HashMap<>();
 
-    public  Body getBodyByID(int characterID) {
+    public Body getBodyByID(int characterID) {
         return hero;
-       // return activeBodies.get(characterID).body;
+        // return activeBodies.get(characterID).body;
     }
-    public void putActiveBody(Character unit){
+
+    public void putActiveBody(Character unit) {
         activeBodies.put(unit.getID(), unit);
     }
-    public void removeActiveBody(Character unit){
+
+    public void removeActiveBody(Character unit) {
         activeBodies.remove(unit.ID);
     }
 
 
-    public void init(){
+    public void init() {
         holder = new WorldHolder();
-        global.universe=this;
+        global.universe = this;
         holder.init();
 
 
@@ -55,16 +57,16 @@ public class Universe{
     }
 
     private void debuginit() {
-        hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
-        heroChar=getCharacter(hero);
-        heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-       PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+        hero = addEntity(100, 500, 250, 250, UnitType.HERO, "hero");
+        heroChar = getCharacter(hero);
+        heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN), Slot.RIGHTHAND);
+        PointLight pointLight = new PointLight(holder.rayHandler, 10, new Color(1, 1, 1, 1), 1000, hero.getPosition().x, hero.getPosition().y);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 
             @Override
             public void collideWith(Body hitter, Body hit) {
-               if (!toRemove.contains(hit))toRemove.add(hit);
+                if (!toRemove.contains(hit)) toRemove.add(hit);
             }
 
             @Override
@@ -79,27 +81,27 @@ public class Universe{
 
             @Override
             public void setTypeCombination() {
-           TypeHolder.addTypeHolder(new TypeHolder(TerrainType.ALL,UnitType.BULLET,HandlerType.BULLETDISPOSAL));
+                TypeHolder.addTypeHolder(new TypeHolder(TerrainType.ALL, UnitType.BULLET, HandlerType.BULLETDISPOSAL));
             }
         });
-    //todo: fix weird lightning torch bug
+
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
 
             @Override
-            public void collideWith(Body a,Body b) {
-                Character temp=getCharacter(a);
+            public void collideWith(Body a, Body b) {
+                Character temp = getCharacter(a);
 
 
-                    heroChar.addContact(a);
+                heroChar.addContact(a);
 
             }
 
             @Override
-            public void detachFrom(Body hitter,Body b) {
+            public void detachFrom(Body hitter, Body b) {
 
-                Character temp=getCharacter(hitter);
+                Character temp = getCharacter(hitter);
 
-                    heroChar.decrContacts(hitter);
+                heroChar.decrContacts(hitter);
 
 
             }
@@ -111,24 +113,24 @@ public class Universe{
 
             @Override
             public void setTypeCombination() {
-                LinkedList<TerrainType>types=new LinkedList<>();
+                LinkedList<TerrainType> types = new LinkedList<>();
                 types.add(TerrainType.FLOOR);
                 types.add(TerrainType.ICE);
-                TypeHolder.addTypeHolder(new TypeHolder(types,UnitType.HERO,HandlerType.TOUCHFLOOR));
+                TypeHolder.addTypeHolder(new TypeHolder(types, UnitType.HERO, HandlerType.TOUCHFLOOR));
             }
         });
 
-        Body wolf=addEntity(700,500,250,250,UnitType.ENEMY,"herowolf");
+        Body wolf = addEntity(700, 500, 250, 250, UnitType.ENEMY, "herowolf");
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
-            public void collideWith(Body hitter,Body b) {
+            public void collideWith(Body hitter, Body b) {
                 Log.t("hit by bullet");
-                if(!toRemove.contains(hitter))  toRemove.add(hitter);
+                if (!toRemove.contains(hitter)) toRemove.add(hitter);
 
             }
 
             @Override
-            public void detachFrom(Body hitter,Body b) {
+            public void detachFrom(Body hitter, Body b) {
 
             }
 
@@ -139,208 +141,198 @@ public class Universe{
 
             @Override
             public void setTypeCombination() {
-                    TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET,UnitType.ENEMY,HandlerType.ENEMYHIT,true));
+                TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET, UnitType.ENEMY, HandlerType.ENEMYHIT, true));
             }
         });
 
 
-       addObject(250,0,2000,5,0,TerrainType.FLOOR,"hero");
-       addObject(600,0,1,500,0,TerrainType.WALL,"shuriken");
+        addObject(250, 0, 2000, 5, 0, TerrainType.FLOOR, "hero");
+        addObject(600, 0, 1, 500, 0, TerrainType.WALL, "shuriken");
 
     }
 
-    public boolean pressedA=false;
-    public boolean pressedD =false;
+    public boolean pressedA = false;
+    public boolean pressedD = false;
 
-    public void getUserInput(){
+    public void getUserInput() {
 
-        if (Gdx.input.isTouched()){
+        if (Gdx.input.isTouched()) {
             //hero set at 400x amd 650y
-            int x=Gdx.input.getX()-400-75;
-            int y=Gdx.input.getY()-(650/2)+78;
-            int hx= (int) get(hero.getPosition().x)+x;
-            int hy= (int) get(hero.getPosition().y)+y;
+            int x = Gdx.input.getX() - 400 - 75;
+            int y = Gdx.input.getY() - (650 / 2) + 78;
+            int hx = (int) get(hero.getPosition().x) + x;
+            int hy = (int) get(hero.getPosition().y) + y;
 
 
-            //todo: map input to coordinates (first idea: get hero position and add/substract based on where clicked. attention: top left corner is 0 for y, hence hero is at 660 484~
-            heroChar.addAttackAction(hx,hy);
+            heroChar.addAttackAction(hx, hy);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.X)){
+        if (Gdx.input.isKeyPressed(Input.Keys.X)) {
             //todo: implement actual weapon switching
-                if(!heroChar.equipment.rightHand.name.equals(WeaponName.TORCH)) heroChar.equipArmament(holder.getArmament(WeaponName.TORCH),Slot.RIGHTHAND);
-                else heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
+            if (!heroChar.equipment.rightHand.name.equals(WeaponName.TORCH))
+                heroChar.equipArmament(holder.getArmament(WeaponName.TORCH), Slot.RIGHTHAND);
+            else heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN), Slot.RIGHTHAND);
 
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-           if(heroChar.canJump()) Action.createAction(ActionType.JUMP,hero).link();
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            if (heroChar.canJump()) Action.createAction(ActionType.JUMP, hero).link();
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            if(!pressedD){
-                Action.createAction(ActionType.MOVE,hero, 1,0).link();
-                pressedD=true;
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            if (!pressedD) {
+                Action.createAction(ActionType.MOVE, hero, 1, 0).link();
+                pressedD = true;
             }
 
-        }else if(pressedD){
-            Action.createAction(ActionType.MOVE,hero, 1,1).link();
-            pressedD=false;
+        } else if (pressedD) {
+            Action.createAction(ActionType.MOVE, hero, 1, 1).link();
+            pressedD = false;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            if(!pressedA){
-                Action.createAction(ActionType.MOVE,hero, -1,0).link();
-                pressedA=true;
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            if (!pressedA) {
+                Action.createAction(ActionType.MOVE, hero, -1, 0).link();
+                pressedA = true;
             }
 
-        }else if(pressedA){
-            Action.createAction(ActionType.MOVE,hero, -1,1).link();
-            pressedA=false;
+        } else if (pressedA) {
+            Action.createAction(ActionType.MOVE, hero, -1, 1).link();
+            pressedA = false;
         }
 
     }
-    public void doStep(){
-        Array<Body>bodies=new Array<>();
+
+    public void doStep() {
+        Array<Body> bodies = new Array<>();
         holder.world.getBodies(bodies);
-        for (Body selected:bodies
-             ) {
-            Character temp=(Character) selected.getUserData();
+        for (Body selected : bodies
+        ) {
+            Character temp = (Character) selected.getUserData();
             temp.doActions();
         }
 
         holder.world.step(utilFields.getTimeStep(), utilFields.getVelocityIterations(), utilFields.getPositionIterations());
-        for (Body a:toRemove
-             ) {
+        for (Body a : toRemove
+        ) {
             holder.world.destroyBody(a);
         }
         toRemove.clear();
 
     }
-    private float previousX=100;
-    private float previousY=500;
 
-    public void adjustCamera(){
-        Vector2 vector2=new Vector2(get(hero.getPosition().x)-previousX,get(hero.getPosition().y)-previousY);
+    private float previousX = 100;
+    private float previousY = 500;
 
-       // holder.camera.translate(vector2);
-
-      //  holder.camera.position.x=previousX;
-        //holder.camera.position.y=previousY;
+    public void adjustCamera() {
+        Vector2 vector2 = new Vector2(get(hero.getPosition().x) - previousX, get(hero.getPosition().y) - previousY);
 
         holder.batch.setProjectionMatrix(holder.lightscam.combined);
-       // previousX=get(hero.getPosition().x);
-       // previousY=get(hero.getPosition().y);
-        //todo: this works. however it introduced various bugs concerning input coordinates, since GDX.input.getx refers to the relative clicked position on screen, not game coordinates.
-       holder.lightscam.position.set((hero.getPosition().x+400)*1,(hero.getPosition().y-set(holder.lightscam.viewportHeight)+650)*1,0);
-       holder.lightscam.translate(vector2.x,vector2.y);
-       holder.lightscam.update();
+
+        holder.lightscam.position.set((hero.getPosition().x + 400) * 1, (hero.getPosition().y - set(holder.lightscam.viewportHeight) + 650) * 1, 0);
+        holder.lightscam.translate(vector2.x, vector2.y);
+        holder.lightscam.update();
         ScreenUtils.clear(0, 0, 0.2f, 1);
-       // holder.camera.update();
-
+        // holder.camera.update();
 
 
     }
-    public void sendMessages(){
+
+    public void sendMessages() {
 
     }
-    public void doLogic(){
+
+    public void doLogic() {
 
     }
 
-    public void drawAll(){
+    public void drawAll() {
         ScreenUtils.clear(0, 0, 0.2f, 1);
         holder.batch.setProjectionMatrix(holder.lightscam.combined);
         holder.batch.begin();
-       Array<Body>bodies=new Array<>();
-       holder.world.getBodies(bodies);
-        for (Body body:bodies) {
-            Character character=getCharacter(body);
-            holder.batch.draw(character.getTexture(),get(body.getPosition().x),get(body.getPosition().y));
+        Array<Body> bodies = new Array<>();
+        holder.world.getBodies(bodies);
+        for (Body body : bodies) {
+            Character character = getCharacter(body);
+            holder.batch.draw(character.getTexture(), get(body.getPosition().x), get(body.getPosition().y));
 
         }
 
         holder.batch.end();
 
 
-       // holder.lightscam.update();
+        // holder.lightscam.update();
 
     }
-    public void lightUp(){
 
-        holder.rayHandler.setCombinedMatrix(holder.lightscam.combined.scale(conversionFactor, conversionFactor,conversionFactor),set(holder.lightscam.position.x),set(holder.lightscam.position.y), holder.lightscam.viewportWidth*holder.lightscam.zoom, holder.lightscam.viewportHeight*holder.lightscam.zoom);
+    public void lightUp() {
 
-        for (ConeLight cone:coneLights
+        holder.rayHandler.setCombinedMatrix(holder.lightscam.combined.scale(conversionFactor, conversionFactor, conversionFactor), set(holder.lightscam.position.x), set(holder.lightscam.position.y), holder.lightscam.viewportWidth * holder.lightscam.zoom, holder.lightscam.viewportHeight * holder.lightscam.zoom);
+
+        for (ConeLight cone : coneLights
         ) {
             cone.update();
         }
-
-
         holder.rayHandler.updateAndRender();
-       // holder.camera.update();
-
-       // holder.lightscam.update();
-
-
-
 
     }
+
     public void removeLights() {
 
         for (ConeLight c : coneLights) {
             c.remove();
         }
 
-            coneLights.clear();
+        coneLights.clear();
 
     }
 
 
-    public Body addEntity(int x, int y, int width, int height, UnitType type,String texture){
+    public Body addEntity(int x, int y, int width, int height, UnitType type, String texture) {
         Body body;
-        BodyDef bodyDef=new BodyDef();
-        bodyDef.type= BodyDef.BodyType.DynamicBody;
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(set(x), set(y));
-        body= holder.world.createBody(bodyDef);
-        PolygonShape dynamic=new PolygonShape();
-        dynamic.setAsBox(set(width),set(height));
+        body = holder.world.createBody(bodyDef);
+        PolygonShape dynamic = new PolygonShape();
+        dynamic.setAsBox(set(width), set(height));
 
-        FixtureDef fixtureDef=new FixtureDef();
+        FixtureDef fixtureDef = new FixtureDef();
 
-        switch (type){
+        switch (type) {
             case HERO:
             case BULLET:
-                fixtureDef.filter.groupIndex=-1;break;
+                fixtureDef.filter.groupIndex = -1;
+                break;
         }
+
         fixtureDef.shape = dynamic;
         fixtureDef.density = PhysicsTable.getDensity();
-        fixtureDef.friction =PhysicsTable.getFriction();
-
-
+        fixtureDef.friction = PhysicsTable.getFriction();
         body.createFixture(fixtureDef);
 
-
-        Texture text=new Texture(Gdx.files.internal(texture.concat(".png")));
-        Character character=new Character(body);
+        Texture text = new Texture(Gdx.files.internal(texture.concat(".png")));
+        Character character = new Character(body);
         character.setTexture(text);
         character.setUnitType(type);
         body.setUserData(character);
 
         return body;
     }
-    public Body addObject(int x, int y,int width, int height,int density, TerrainType type,String texture){
+
+    public Body addObject(int x, int y, int width, int height, int density, TerrainType type, String texture) {
         BodyDef groundBodyDef = new BodyDef();
-        groundBodyDef.position.set(set(x),set(y));
+        groundBodyDef.position.set(set(x), set(y));
 
-        Body ground=holder.world.createBody(groundBodyDef);
+        Body ground = holder.world.createBody(groundBodyDef);
 
-        PolygonShape groundbox=new PolygonShape();
-        groundbox.setAsBox(set(width),set(height));
+        PolygonShape groundbox = new PolygonShape();
+        groundbox.setAsBox(set(width), set(height));
         ground.createFixture(groundbox, density);
-        Character chara=new Character(ground);
+        Character chara = new Character(ground);
         Texture text;
         try {
-             text=new Texture(Gdx.files.internal(texture));
+            text = new Texture(Gdx.files.internal(texture));
         } catch (Exception e) {
-             text=new Texture(Gdx.files.internal(texture.concat(".png")));
+            text = new Texture(Gdx.files.internal(texture.concat(".png")));
         }
 
 
@@ -350,8 +342,6 @@ public class Universe{
         ground.setUserData(chara);
         return ground;
     }
-
-
 
 
 }

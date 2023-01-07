@@ -21,11 +21,11 @@ import static java.lang.Math.toDegrees;
 import static util.utilMethods.get;
 import static util.utilMethods.getCharacter;
 
-public class Armament  {
+public class Armament {
 
     //util fields
     int ID;
-    private static int counter=0;
+    private static int counter = 0;
     Body wielder;
     Texture texture;
     Vector2 offset;
@@ -39,11 +39,11 @@ public class Armament  {
     WeaponName name;
     int range;
     int angle;
-    long equipDuration=350;
+    long equipDuration = 350;
 
     //handlers
     ActionHandler attackHandler;
-    ActionHandler  onEquip=new ActionHandler() {
+    ActionHandler onEquip = new ActionHandler() {
         @Override
         public void before() {
 
@@ -64,9 +64,11 @@ public class Armament  {
         public void after() {
             switch (slot) {
                 case RIGHTHAND:
-                    getCharacter(wielder).equipment.rightHand =armament; break;
+                    getCharacter(wielder).equipment.rightHand = armament;
+                    break;
                 case LEFTHAND:
-                    getCharacter(wielder).equipment.leftHand = armament;  break;
+                    getCharacter(wielder).equipment.leftHand = armament;
+                    break;
 
                 case BOTHHANDS:
                     getCharacter(wielder).equipment.rightHand = armament;
@@ -76,7 +78,7 @@ public class Armament  {
             }
         }
     };
-    ActionHandler onUnequip=new ActionHandler() {
+    ActionHandler onUnequip = new ActionHandler() {
         @Override
         public void before() {
 
@@ -89,7 +91,7 @@ public class Armament  {
 
         @Override
         public STATE execute(float destinationX, float destinationY) {
-            Log.a("unequipping "+name);
+            Log.a("unequipping " + name);
             return STATE.DONE;
         }
 
@@ -100,22 +102,22 @@ public class Armament  {
     };
 
     //lists
-    LinkedList<AdditionalAction> additionalActions =new LinkedList<>();
-    LinkedList<ActionType> actionFilter=new LinkedList<>();
+    LinkedList<AdditionalAction> additionalActions = new LinkedList<>();
+    LinkedList<ActionType> actionFilter = new LinkedList<>();
 
-    public void addAdditionalAction(ActionHandler handler, long cooldown, TriggerType triggerType){
-        additionalActions.add(new AdditionalAction(handler,cooldown,triggerType));
+    public void addAdditionalAction(ActionHandler handler, long cooldown, TriggerType triggerType) {
+        additionalActions.add(new AdditionalAction(handler, cooldown, triggerType));
     }
 
     //generating an equip-action,setting all fields. X=slotnumber, Y=ID
     public void setWielder(Body wielder) {
         this.wielder = wielder;
-        Action action=Action.createAction(ActionType.EQUIP,wielder);
+        Action action = Action.createAction(ActionType.EQUIP, wielder);
         action.setActionHandler(onEquip);
         action.setDuration(equipDuration);
         action.setX(slot.ordinal());
         action.setY(this.ID);
-        LinkedList<ActionType>blockingtypes=new LinkedList<>();
+        LinkedList<ActionType> blockingtypes = new LinkedList<>();
         blockingtypes.add(ActionType.ALL);
         action.setBlockingTypes(blockingtypes);
         action.link();
@@ -124,8 +126,8 @@ public class Armament  {
 
 
     //to be called after initialization, otherwise its set to throwing weapon as standart
-    public void setStandardThrowingWeaponHandler(){
-        this.attackHandler =new ActionHandler() {
+    public void setStandardThrowingWeaponHandler() {
+        this.attackHandler = new ActionHandler() {
             @Override
             public void before() {
 
@@ -138,17 +140,17 @@ public class Armament  {
 
             @Override
             public STATE execute(float destinationX, float destinationY) {
-                int x,y;
-                x= (int) get(wielder.getPosition().x)+150;
-                y= (int) get(wielder.getPosition().y)+150;
-                Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
+                int x, y;
+                x = (int) get(wielder.getPosition().x) + 150;
+                y = (int) get(wielder.getPosition().y) + 150;
+                Body bullet = global.universe.addEntity(x, y, 1, 1, UnitType.BULLET, "shuriken");
 
-              //  bullet.getFixtureList().get(0).setSensor(true);
+                //  bullet.getFixtureList().get(0).setSensor(true);
 
-                Vector2 direction=new Vector2();
-                direction.x=(destinationX-x)*velocity;
-                direction.y=-(destinationY-y)*velocity;
-                bullet.applyLinearImpulse(direction,bullet.getWorldCenter(),true);
+                Vector2 direction = new Vector2();
+                direction.x = (destinationX - x) * velocity;
+                direction.y = -(destinationY - y) * velocity;
+                bullet.applyLinearImpulse(direction, bullet.getWorldCenter(), true);
                 return STATE.NOTDONE;
             }
 
@@ -159,64 +161,67 @@ public class Armament  {
         };
     }
 
-    public void setStandardShootingWeaponHandler(){
+    public void setStandardShootingWeaponHandler() {
 
     }
-    public void setStandardMeleeWeaponHandler(){
+
+    public void setStandardMeleeWeaponHandler() {
 
     }
-    public void setStandardMagicSpellHandler(){
+
+    public void setStandardMagicSpellHandler() {
 
     }
-    public void setStandardTochHandler(){
-    attackHandler=new ActionHandler() {
-        @Override
-        public void before() {
 
-        }
+    public void setStandardTochHandler() {
+        attackHandler = new ActionHandler() {
+            @Override
+            public void before() {
 
-        @Override
-        public void onStart() {
+            }
 
-        }
+            @Override
+            public void onStart() {
 
-        @Override
-        public STATE execute(float destinationX, float destinationY) {
-            float cx,cy, x,y;
-         x=get(wielder.getPosition().x)+150;
+            }
 
-           y=get(wielder.getPosition().y)+150;
+            @Override
+            public STATE execute(float destinationX, float destinationY) {
+                float cx, cy, x, y;
+                x = get(wielder.getPosition().x) + 150;
 
-
-            cx=Gdx.input.getX();
-            cy=Gdx.input.getY();
-
-            x=destinationX-x;
-            y=-(destinationY-y);
-
-            //determine correct factor
-            float directionDegree=(float)toDegrees(atan2(y,x));
-
-            ConeLight coneLight=new ConeLight(global.universe.holder.rayHandler,10,new Color(100,100,100,100),range,wielder.getPosition().x+2,wielder.getPosition().y+1,directionDegree,angle);
-         ConeLight coneLight2=new ConeLight(global.universe.holder.rayHandler,10,new Color(100,100,100,100),range,wielder.getPosition().x+2,wielder.getPosition().y+1,directionDegree,angle);
+                y = get(wielder.getPosition().y) + 150;
 
 
-            global.universe.coneLights.add(coneLight);
-           global.universe.coneLights.add(coneLight2);
-            return STATE.DONE;
-        }
+                cx = Gdx.input.getX();
+                cy = Gdx.input.getY();
 
-        @Override
-        public void after() {
+                x = destinationX - x;
+                y = -(destinationY - y);
 
-        }
-    };
+                //determine correct factor
+                float directionDegree = (float) toDegrees(atan2(y, x));
+
+                ConeLight coneLight = new ConeLight(global.universe.holder.rayHandler, 10, new Color(100, 100, 100, 100), range, wielder.getPosition().x + 2, wielder.getPosition().y + 1, directionDegree, angle);
+                ConeLight coneLight2 = new ConeLight(global.universe.holder.rayHandler, 10, new Color(100, 100, 100, 100), range, wielder.getPosition().x + 2, wielder.getPosition().y + 1, directionDegree, angle);
+
+
+                global.universe.coneLights.add(coneLight);
+                global.universe.coneLights.add(coneLight2);
+                return STATE.DONE;
+            }
+
+            @Override
+            public void after() {
+
+            }
+        };
     }
 
     //creates attackAction
     public void attack(int x, int y) {
 
-        Action actionrightHand=Action.createAction(ActionType.ATTACK,wielder);
+        Action actionrightHand = Action.createAction(ActionType.ATTACK, wielder);
         actionrightHand.setX(x);
         actionrightHand.setY(y);
         actionrightHand.setStatsByArmament(this);
@@ -225,32 +230,31 @@ public class Armament  {
     }
 
     public void unequip() {
-        if(onUnequip!=null){
+        if (onUnequip != null) {
             onUnequip.before();
             onUnequip.before();
-            onUnequip.execute(0,0);
+            onUnequip.execute(0, 0);
             onUnequip.after();
         }
 
     }
 
 
-
     //--------------------------getters and setters
 
     public Armament() {
-        ID=counter++;
+        ID = counter++;
         actionFilter.add(ActionType.ATTACK);
-        this.armament=this;
+        this.armament = this;
         this.setStandardThrowingWeaponHandler();
 
     }
 
-    public ActionHandler getActionHandler(){
+    public ActionHandler getActionHandler() {
         return attackHandler;
     }
 
-    public void addActionToFilter(ActionType type){
+    public void addActionToFilter(ActionType type) {
         actionFilter.add(type);
     }
 
@@ -267,16 +271,16 @@ public class Armament  {
     }
 
     public void setSlot(Slot righthand) {
-        this.slot=righthand;
+        this.slot = righthand;
     }
 
-    enum Type{
+    enum Type {
         WEAPON,
         SHIELD,
         SORCERY
     }
 
-    public Vector2 getRelativePosition(Vector2 a){
+    public Vector2 getRelativePosition(Vector2 a) {
         return null;
     }
 
@@ -285,7 +289,7 @@ public class Armament  {
     }
 
     public void setName(WeaponName name) {
-        global.universe.holder.index.put(this.ID,name);
+        global.universe.holder.index.put(this.ID, name);
         this.name = name;
     }
 
