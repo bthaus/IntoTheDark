@@ -31,18 +31,19 @@ public class WorldHolder {
     public void init() {
         batch = new SpriteBatch();
         world=new World(PhysicsTable.getGravity(),true);
-        rayHandler=new RayHandler(world);
-        camera = new OrthographicCamera();
+
+       // camera = new OrthographicCamera();
 
 
 
-        camera.setToOrtho(false, utilFields.getCamerawidth(), utilFields.getCamerawidth());
+      //  camera.setToOrtho(false, utilFields.getCamerawidth(), utilFields.getCamerawidth());
 
         lightscam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         lightscam.setToOrtho(false);
         lightscam.update();
+        lightscam.zoom=1.5f;
 
-
+        rayHandler=new RayHandler(world);
 
         world.setContinuousPhysics(true);
 
@@ -51,6 +52,7 @@ public class WorldHolder {
         rayHandler.setShadows(true);
         rayHandler.setAmbientLight(1);
         rayHandler.setBlurNum(2);
+
         setDefaultListeners();
         initArmaments();
 

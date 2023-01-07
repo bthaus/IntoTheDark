@@ -1,14 +1,12 @@
 package com.mygdx.game;
 
-import Handler.ActionHandler;
 import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
 import box2dLight.ConeLight;
-import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -28,7 +26,7 @@ public class Universe{
     public WorldHolder holder;
     Body hero;
     Character heroChar;
-    LinkedList<Body>toRemove=new LinkedList<>();
+    LinkedList<Body>toRemove =new LinkedList<>();
     LinkedList<ConeLight>coneLights=new LinkedList<>();
     Map<Integer,Character> activeBodies=new HashMap<>();
 
@@ -58,7 +56,7 @@ public class Universe{
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-        PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+       // PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 
@@ -82,7 +80,7 @@ public class Universe{
            TypeHolder.addTypeHolder(new TypeHolder(TerrainType.ALL,UnitType.BULLET,HandlerType.BULLETDISPOSAL));
             }
         });
-
+    //todo: fix weird lightning torch bug
         heroChar.collisionHandler.setCustomTerrainCollisionHandler(new TerrainCollisionHandler() {
 
             @Override
@@ -151,10 +149,15 @@ public class Universe{
 
     public boolean pressedA=false;
     public boolean pressedD =false;
-    public void getUserInput(){
-        if (Gdx.input.isTouched()){
-            heroChar.addAttackAction(Gdx.input.getX(),Gdx.input.getY());
 
+    public void getUserInput(){
+
+        if (Gdx.input.isTouched()){
+
+            //todo: map input to coordinates (first idea: get hero position and add/substract based on where clicked. attention: top left corner is 0 for y, hence hero is at 660 484~
+            heroChar.addAttackAction(Gdx.input.getX(),Gdx.input.getY());
+            Log.t(Gdx.input.getX()+" and y "+Gdx.input.getY());
+            Log.t("and hero: "+hero.getPosition().x+" and y "+hero.getPosition().y);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.X)){
@@ -211,20 +214,24 @@ public class Universe{
 
     public void adjustCamera(){
         Vector2 vector2=new Vector2(get(hero.getPosition().x)-previousX,get(hero.getPosition().y)-previousY);
+
        // holder.camera.translate(vector2);
-        previousX=get(hero.getPosition().x);
-        previousY=get(hero.getPosition().y);
-        holder.camera.position.x=previousX;
-        holder.camera.position.y=previousY;
 
-        holder.lightscam.position.x=set(previousX);
-        holder.lightscam.position.y=set(previousY);
+      //  holder.camera.position.x=previousX;
+        //holder.camera.position.y=previousY;
 
-       // holder.lightscam.translate(set(vector2.x),set(vector2.y));
-        holder.camera.update();
-        holder.lightscam.update();
-
+        holder.batch.setProjectionMatrix(holder.lightscam.combined);
+       // previousX=get(hero.getPosition().x);
+       // previousY=get(hero.getPosition().y);
+        //todo: this works. however it introduced various bugs concerning input coordinates, since GDX.input.getx refers to the relative clicked position on screen, not game coordinates.
+       holder.lightscam.position.set((hero.getPosition().x+400)*1,(hero.getPosition().y-set(holder.lightscam.viewportHeight)+650)*1,0);
+       holder.lightscam.translate(vector2.x,vector2.y);
+       holder.lightscam.update();
         ScreenUtils.clear(0, 0, 0.2f, 1);
+       // holder.camera.update();
+
+
+
     }
     public void sendMessages(){
 
@@ -234,6 +241,8 @@ public class Universe{
     }
 
     public void drawAll(){
+        ScreenUtils.clear(0, 0, 0.2f, 1);
+        holder.batch.setProjectionMatrix(holder.lightscam.combined);
         holder.batch.begin();
        Array<Body>bodies=new Array<>();
        holder.world.getBodies(bodies);
@@ -244,6 +253,10 @@ public class Universe{
         }
 
         holder.batch.end();
+
+
+       // holder.lightscam.update();
+
     }
     public void lightUp(){
 
@@ -253,9 +266,12 @@ public class Universe{
         ) {
             cone.update();
         }
+
+
         holder.rayHandler.updateAndRender();
-        holder.camera.update();
-        holder.lightscam.update();
+       // holder.camera.update();
+
+       // holder.lightscam.update();
 
 
 

@@ -70,7 +70,7 @@ public class Host extends Thread {
         switch (action.getType()){
             case PASSIVEATTACK:return;
         }
-        Log.t(action.getType()+"sent");
+
         actions.offer(action);
     }
 
