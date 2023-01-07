@@ -124,7 +124,7 @@ public class Universe {
         getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
             @Override
             public void collideWith(Body hitter, Body b) {
-                Log.t("hit by bullet");
+                Log.t("hit by "+getCharacter(hitter).getTexture().toString().replaceAll(".png",""));
                 if (!toRemove.contains(hitter)) toRemove.add(hitter);
 
             }
@@ -299,9 +299,14 @@ public class Universe {
 
         switch (type) {
             case HERO:
+            case FRIEND:
             case BULLET:
                 fixtureDef.filter.groupIndex = -1;
                 break;
+            case ENEMY:
+            case ENEMYPROJECTILE:
+            case BOSS:fixtureDef.filter.groupIndex=-2;break;
+
         }
 
         fixtureDef.shape = dynamic;
