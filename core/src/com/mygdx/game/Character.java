@@ -9,6 +9,7 @@ import util.*;
 import java.util.LinkedList;
 
 import static util.utilMethods.getCharacter;
+import static util.utilMethods.set;
 
 //is saved in body.UserData
 public class Character {
@@ -208,6 +209,12 @@ public class Character {
     }
 
     //--------------------getter and setter-------------------------
+   public static Character createCharByEnemyDef(EnemyDef def,int x, int y){
+        Body body= global.universe.addEntity(x,y,def.width,def.width,UnitType.ENEMY,def.texture);
+        Character character=new Character(body);
+        return character;
+   }
+
 
     public Character(Body body) {
         this.ID=counter++;

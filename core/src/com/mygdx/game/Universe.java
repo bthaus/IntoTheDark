@@ -4,8 +4,10 @@ import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
 import box2dLight.ConeLight;
+import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
@@ -56,7 +58,7 @@ public class Universe{
         hero= addEntity(100,500,250,250,UnitType.HERO,"hero");
         heroChar=getCharacter(hero);
         heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN),Slot.RIGHTHAND);
-       // PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
+       PointLight pointLight=new PointLight(holder.rayHandler,10,new Color(1,1,1,1),1000,hero.getPosition().x,hero.getPosition().y);
         CollisionHandler.setStandartTerrainHandler(new TerrainCollisionHandler() {
 
 
@@ -153,9 +155,15 @@ public class Universe{
     public void getUserInput(){
 
         if (Gdx.input.isTouched()){
+            //hero set at 400x amd 650y
+            int x=Gdx.input.getX()-400-75;
+            int y=Gdx.input.getY()-(650/2)+78;
+            int hx= (int) get(hero.getPosition().x)+x;
+            int hy= (int) get(hero.getPosition().y)+y;
+
 
             //todo: map input to coordinates (first idea: get hero position and add/substract based on where clicked. attention: top left corner is 0 for y, hence hero is at 660 484~
-            heroChar.addAttackAction(Gdx.input.getX(),Gdx.input.getY());
+            heroChar.addAttackAction(hx,hy);
             Log.t(Gdx.input.getX()+" and y "+Gdx.input.getY());
             Log.t("and hero: "+hero.getPosition().x+" and y "+hero.getPosition().y);
         }
