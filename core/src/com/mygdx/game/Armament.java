@@ -143,7 +143,7 @@ public class Armament {
                 int x, y;
                 x = (int) get(wielder.getPosition().x) + 150;
                 y = (int) get(wielder.getPosition().y) + 150;
-                Body bullet = global.universe.addEntity(x, y, 1, 1, UnitType.BULLET, "shuriken");
+                Body bullet = global.universe.addEntity(x, y, 25, 25, UnitType.BULLET, "shuriken");
 
                 //  bullet.getFixtureList().get(0).setSensor(true);
 

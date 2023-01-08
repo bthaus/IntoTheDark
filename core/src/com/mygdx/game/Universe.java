@@ -147,7 +147,7 @@ public class Universe {
 
 
         addObject(250, 0, 2000, 5, 0, TerrainType.FLOOR, "hero");
-        addObject(600, 0, 1, 500, 0, TerrainType.WALL, "shuriken");
+      //  addObject(600, 0, 1, 500, 0, TerrainType.WALL, "shuriken");
 
     }
 
@@ -162,7 +162,6 @@ public class Universe {
             int y = Gdx.input.getY() - (650 / 2) + 78;
             int hx = (int) get(hero.getPosition().x) + x;
             int hy = (int) get(hero.getPosition().y) + y;
-
 
             heroChar.addAttackAction(hx, hy);
         }
@@ -308,9 +307,14 @@ public class Universe {
             case BOSS:fixtureDef.filter.groupIndex=-2;break;
 
         }
+        if(type.equals(UnitType.ENEMY)) body.setLinearDamping(10);
+
+
 
         fixtureDef.shape = dynamic;
-        fixtureDef.density = PhysicsTable.getDensity();
+        if(type.equals(UnitType.BULLET))fixtureDef.density=5;
+        else fixtureDef.density = PhysicsTable.getDensity();
+
         fixtureDef.friction = PhysicsTable.getFriction();
         body.createFixture(fixtureDef);
 
