@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import Handler.ActionHandler;
 import Types.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -8,69 +9,98 @@ import util.*;
 import java.util.LinkedList;
 
 import static util.utilMethods.getCharacter;
+import static util.utilMethods.set;
 
 //is saved in body.UserData
 public class Character {
+    //utility fields
     Watch watch=new Watch();
+
+
+    //gamestats fields
     Stats stats;
     Equipment equipment;
+    static int counter=0;
+    int ID;
+
+    //code fields
     Friend friend=null;
     Texture texture;
     UnitType unitType=UnitType.DEFAULT;
     boolean isTerrain=false;
-    CollisionHandler collisionHandler=new CollisionHandler(this);
     TerrainType terrainType=TerrainType.DEFAULT;
     BlockType blockType;
-    LinkedList<Action>actions=new LinkedList<>();
-    LinkedList<Action>actionsToAdd=new LinkedList<>();
-    LinkedList<Body>touchedFloors=new LinkedList<>();
     Body body;
-    Mode mode=Mode.ATTACKMODE;
-    LinkedList<ActionType>actionFilter=new LinkedList<>();
     Action blockingAction;
     Action moveright;
     Action moveleft;
 
+    //handlers
+    CollisionHandler collisionHandler=new CollisionHandler(this);
+    ActionHandler    onSpawn=new ActionHandler() {
+        @Override
+        public void before() {
 
-    static int counter=0;
-    int ID;
+        }
 
+        @Override
+        public void onStart() {
 
+        }
 
-    public Character(Body body) {
-        this.ID=counter++;
-        this.body=body;
-        this.equipment=new Equipment();
-        this.equipment.rightHand =new Armament();
-    }
+        @Override
+        public STATE execute(float destinationX, float destinationY) {
+            return null;
+        }
+
+        @Override
+        public void after() {
+
+        }
+    };
+    ActionHandler    onDeath=new ActionHandler() {
+        @Override
+        public void before() {
+
+        }
+
+        @Override
+        public void onStart() {
+
+        }
+
+        @Override
+        public STATE execute(float destinationX, float destinationY) {
+            global.universe.toRemove.add(body);
+            return STATE.DONE;
+        }
+
+        @Override
+        public void after() {
+
+        }
+    };
+
+    //lists
+    LinkedList<Action>actions=new LinkedList<>();
+    LinkedList<Action>actionsToAdd=new LinkedList<>();
+    LinkedList<Body>touchedFloors=new LinkedList<>();
+    LinkedList<ActionType>actionFilter=new LinkedList<>();
 
 
     public void equipArmament(Armament armament,Slot slot){
-        switch (slot){
-            case RIGHTHAND:equipment.rightHand=armament;break;
-            case LEFTHAND:equipment.leftHand=armament;break;
-            case BOTHHANDS:equipment.rightHand=armament; unequip(Slot.LEFTHAND);break;
-        }
         armament.setWielder(body);
-
     }
 
-    private void unequip(Slot slot) {
+    void unequip(Slot slot) {
         switch (slot){
-            case LEFTHAND:equipment.leftHand.unequip();
+            case LEFTHAND:if(equipment.leftHand!=null)equipment.leftHand.unequip();
         }
     }
 
-    boolean onHold=false;
-    static int actioncounter=0;
     public void doActions() {
-        STATE state=STATE.NOTDONE;
-       if(actions.size()!=0) {
-
-
-           Log.a(String.valueOf(actions.size())+"         "+actioncounter);
-       }
-
+        STATE state;
+        //check for blocking action
         if(this.watch.active()&&watch.done())
         {
                 watch=new Watch();
@@ -80,22 +110,33 @@ public class Character {
 
 
         }
+        //add actions to toAdd first due to multithreading in connectivity
         actions.addAll(actionsToAdd);
         actionsToAdd.clear();
         for (Action action:actions
              ) {
-            if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)) continue;
-
+            //filter actions
+            if(actionFilter.contains(action.type)||actionFilter.contains(ActionType.ALL)){
+                if(action.getType().equals(ActionType.MOVE)){
+                    //workaround for move optimization
+                    global.universe.pressedA=false;
+                    global.universe.pressedD=false;
+                    moveleft=null;
+                    moveright=null;
+                }
+                continue;
+            }
+                //send action
                 if(global.host!=null&&action.tosend) global.host.addAction(action);
 
-                actioncounter+=actions.size();
+
                 action.handler.before();
                 action.handler.onStart();
                 state=action.handler.execute(action.x, action.y);
-              //  global.host.addAction(action);
 
                 if(state.equals(STATE.DONE)) action.handler.after();
                 else    {
+                    //starting watch and set blocking action
                     watch.start(action.duration);
                     actionFilter=action.actionFilter;
                     blockingAction=action;
@@ -103,8 +144,9 @@ public class Character {
 
 
         }
-        //todo: optimize moving
+
          actions.clear();
+        //workaroung for move optimization
        if(moveright!=null){
            moveright.tosend=false;
             addAction(moveright);
@@ -114,9 +156,7 @@ public class Character {
            addAction(moveleft);
        }
     }
-    public void addAction(Action action){
-       actionsToAdd.add(action);
-    }
+
     public void addAttackAction(int x, int y){
 
         if(equipment.rightHand!=null){
@@ -126,13 +166,12 @@ public class Character {
         if(equipment.leftHand!=null){
           equipment.leftHand.attack(x,y);
         }
-        for (AdditionalAction attack: equipment.getAllAdditionalAttacks()
+        for (AdditionalAction attack: equipment.getAllAdditionalActions(TriggerType.ONATTACK)
              ) {
             attack.execute(body);
         }
 
     }
-
 
     public void collidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
@@ -153,6 +192,7 @@ public class Character {
        }
 
     }
+
     public void uncollidedWith(Body bodyB) {
         Character body=getCharacter(bodyB);
         if(body.isTerrain&&isTerrain){
@@ -169,6 +209,23 @@ public class Character {
     }
 
     //--------------------getter and setter-------------------------
+   public static Character createCharByEnemyDef(EnemyDef def,int x, int y){
+        Body body= global.universe.addEntity(x,y,def.width,def.width,UnitType.ENEMY,def.texture);
+        Character character=new Character(body);
+        return character;
+   }
+
+
+    public Character(Body body) {
+        this.ID=counter++;
+        this.body=body;
+        this.equipment=new Equipment();
+        this.equipment.rightHand =new Armament();
+    }
+
+    public void addAction(Action action){
+        actionsToAdd.add(action);
+    }
 
     public TerrainType getTerrainType() {
         return terrainType;
@@ -182,17 +239,18 @@ public class Character {
     public int getContacts(){
         return this.touchedFloors.size();
     }
+
     public int addContact(Body a){
         if (!touchedFloors.contains(a)&&getCharacter(a).getTerrainType().equals(TerrainType.FLOOR)) touchedFloors.add(a);
 
         return this.touchedFloors.size();
     }
+
     public int decrContacts(Body a){
        if(touchedFloors.contains(a)) touchedFloors.remove(a);
 
         return this.touchedFloors.size();
     }
-
 
     public Stats getStats() {
         return stats;
@@ -234,7 +292,6 @@ public class Character {
         this.unitType = unitType;
     }
 
-
     public BlockType getBlockType() {
         return blockType;
     }
@@ -256,21 +313,13 @@ public class Character {
         if (this.getContacts() > 0) return true;
         else return false;
     }
+
     public void jump(){
         if(canJump()){
             body.applyLinearImpulse(PhysicsTable.jumpForce,body.getWorldCenter(),true);
 
         }
 
-    }
-
-    public void switchMode() {
-        switch (mode){
-            case ATTACKMODE:mode=Mode.LIGHTMODE;break;
-            case LIGHTMODE:mode=Mode.ATTACKMODE;break;
-            default: break;
-        }
-        System.out.println(mode);
     }
 
     public int getID() {
