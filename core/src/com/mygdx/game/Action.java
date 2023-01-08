@@ -3,17 +3,15 @@ package com.mygdx.game;
 import Handler.ActionHandler;
 import Types.*;
 import com.badlogic.gdx.physics.box2d.Body;
-import util.Log;
 import util.PhysicsTable;
 import util.Watch;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 
 import static Types.STATE.DONE;
 import static util.utilMethods.*;
 
-public class Action implements Serializable {
+public class Action  {
     //util fields
     int actionID = 0;
     public Watch watch;
@@ -23,6 +21,8 @@ public class Action implements Serializable {
     //x and y pose as store for multiple use cases. in case of equip action the slot is stored in x, ind the case of move the direction is stored.
     int x, y;
     private boolean linked = false;
+    CharacterDef characterDef;
+    int spawnedCharID=-1;
 
     //game fields
     ActionType type;
@@ -69,6 +69,11 @@ public class Action implements Serializable {
                     public void after() {
 
                     }
+
+                    @Override
+                    public void perFrame(float x, float y) {
+
+                    }
                 });
                 break;
             case MOVE:
@@ -93,6 +98,11 @@ public class Action implements Serializable {
                     public void after() {
 
                     }
+
+                    @Override
+                    public void perFrame(float x, float y) {
+
+                    }
                 });
 
         }
@@ -103,6 +113,14 @@ public class Action implements Serializable {
         Action action = createAction(type, actor);
         action.setX(x);
         action.setY(y);
+        return action;
+    }
+
+    public static Action createGlobalAction(int x, int y,ActionType type){
+        Action action=new Action();
+        action.setX(x);
+        action.setY(y);
+        action.setType(type);
         return action;
     }
 
@@ -199,5 +217,27 @@ public class Action implements Serializable {
 
     public void setType(ActionType global) {
         this.type=global;
+    }
+
+    public CharacterDef getCharacterDef() {
+        return characterDef;
+    }
+
+    public void setCharacterDef(CharacterDef characterDef) {
+        this.characterDef = characterDef;
+    }
+
+    public int getSpawnedCharID() {
+        return spawnedCharID;
+    }
+
+    public void setSpawnedCharID(int spawnedCharID) {
+        this.spawnedCharID = spawnedCharID;
+    }
+    public int getActorID(){
+        switch (type){
+            case SPAWN:return -1;
+        }
+        return getActor().getID();
     }
 }

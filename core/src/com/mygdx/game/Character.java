@@ -36,7 +36,7 @@ public class Character {
     Action moveleft;
 
     //handlers
-    CollisionHandler collisionHandler=new CollisionHandler(this);
+    public CollisionHandler collisionHandler=new CollisionHandler(this);
 
 
 
@@ -189,7 +189,7 @@ public class Character {
     }
 
     //--------------------getter and setter-------------------------
-   public static Character createCharByEnemyDef(EnemyDef def,int x, int y){
+   public static Character createCharByEnemyDef(CharacterDef def, int x, int y){
         Body body= global.universe.addEntity(x,y,def.width,def.width,UnitType.ENEMY,def.texture);
         Character character=new Character(body);
         return character;
@@ -312,5 +312,9 @@ public class Character {
 
     public Body getBody() {
         return this.body;
+    }
+
+    public void setID(int spawnedCharID) {
+        this.ID=spawnedCharID;
     }
 }

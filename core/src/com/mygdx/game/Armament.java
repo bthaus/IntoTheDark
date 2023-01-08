@@ -77,6 +77,11 @@ public class Armament {
 
             }
         }
+
+        @Override
+        public void perFrame(float x, float y) {
+
+        }
     };
     ActionHandler onUnequip = new ActionHandler() {
         @Override
@@ -97,6 +102,11 @@ public class Armament {
 
         @Override
         public void after() {
+
+        }
+
+        @Override
+        public void perFrame(float x, float y) {
 
         }
     };
@@ -158,6 +168,11 @@ public class Armament {
             public void after() {
 
             }
+
+            @Override
+            public void perFrame(float x, float y) {
+
+            }
         };
     }
 
@@ -213,6 +228,11 @@ public class Armament {
 
             @Override
             public void after() {
+
+            }
+
+            @Override
+            public void perFrame(float x, float y) {
 
             }
         };

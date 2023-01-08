@@ -1,6 +1,5 @@
 package com.mygdx.game;
 
-import Handler.ActionHandler;
 import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
@@ -9,13 +8,12 @@ import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.game.Network.Friend;
 import util.PhysicsTable;
 import util.*;
 
@@ -37,6 +35,15 @@ public class Universe {
     ConcurrentLinkedDeque<Action>actionsToAdd=new ConcurrentLinkedDeque<>();
 
     public Body getBodyByID(int characterID) {
+        Array<Body>bodies = new Array<>();
+        holder.world.getBodies(bodies);
+        for (Body body:bodies
+        ) {
+            if(getCharacter(body).getID()==characterID){
+                Log.g("found "+getCharacter(body).getUnitType());
+                return body;
+            }
+        }
         return hero;
         // return activeBodies.get(characterID).body;
     }
@@ -148,33 +155,8 @@ public class Universe {
                 TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET, UnitType.ENEMY, HandlerType.ENEMYHIT, true));
             }
         });
-        Action action=new Action();
-        action.setActionHandler(new ActionHandler() {
-            @Override
-            public void before() {
-                Log.g("global action handlestart");
-            }
 
-            @Override
-            public void onStart() {
 
-            }
-
-            @Override
-            public STATE execute(float destinationX, float destinationY) {
-                Log.g("execute");
-                return STATE.NOTDONE;
-            }
-
-            @Override
-            public void after() {
-            Log.g("after");
-            }
-        });
-        action.setDuration(5000);
-        action.setType(ActionType.GLOBAL);
-        this.addGlobalAction(action);
-        this.addGlobalAction(action);
 
         addObject(250, 0, 2000, 5, 0, TerrainType.FLOOR, "hero");
       //  addObject(600, 0, 1, 500, 0, TerrainType.WALL, "shuriken");
@@ -203,7 +185,15 @@ public class Universe {
             else heroChar.equipArmament(holder.getArmament(WeaponName.SHURIKEN), Slot.RIGHTHAND);
 
         }
+        //todo: remove debug
+        if(Gdx.input.isKeyPressed(Input.Keys.P)){
 
+            Action action=Action.createGlobalAction(700,700,ActionType.SPAWN);
+            action.setCharacterDef(holder.getCharacterDefByID(0));
+            action.setActionHandler(holder.getDefaultSpawnHandler(action));
+            addGlobalAction(action);
+
+        }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             if (heroChar.canJump()) Action.createAction(ActionType.JUMP, hero).link();
         }
@@ -251,7 +241,7 @@ public class Universe {
         //do regular global actoins
         for (Action action:actionQueue
              ) {
-            if(global.host!=null&&action.tosend) global.host.addAction(action);
+
             action.handler.before();
             action.handler.onStart();
             if(action.handler.execute(action.x,action.y).equals(STATE.NOTDONE)){
@@ -261,6 +251,8 @@ public class Universe {
             }else{
                 action.handler.after();
             }
+            Friend.unimparse(action);
+            if(global.host!=null&&action.tosend) global.host.addAction(action);
 
         }
         actionQueue.clear();
@@ -280,6 +272,8 @@ public class Universe {
         for (Body a : toRemove
         ) {
             holder.world.destroyBody(a);
+            //throws nullpointer exception because of objects like shuriken
+            //removeActiveBody(getCharacter(a));
         }
         toRemove.clear();
 
@@ -391,6 +385,7 @@ public class Universe {
         character.setTexture(text);
         character.setUnitType(type);
         body.setUserData(character);
+        putActiveBody(getCharacter(body));
 
         return body;
     }
@@ -423,6 +418,33 @@ public class Universe {
 
     public void addGlobalAction(Action action){
         this.actionsToAdd.offer(action);
+    }
+    public void spawnHeroFromNetwork(String []msg, Action action){
+        int bodyID=Integer.parseInt(msg[4]);
+        int characterDefIndex=Integer.parseInt(msg[5]);
+        CharacterDef def= holder.getCharacterDefByID(characterDefIndex);
+        action.setCharacterDef(def);
+        action.setSpawnedCharID(bodyID);
+        action.setActionHandler(holder.getDefaultSpawnHandler(action));
+
+        this.addGlobalAction(action);
+
+
+
+
+    }
+    public void spawnCharacterFromNetwork(String[] msg, Action action){
+        //x and y already set
+        int bodyID=Integer.parseInt(msg[4]);
+        int characterDefIndex=Integer.parseInt(msg[5]);
+        CharacterDef def= holder.getCharacterDefByID(characterDefIndex);
+        action.setCharacterDef(def);
+        action.setSpawnedCharID(bodyID);
+        action.setActionHandler(holder.getDefaultSpawnHandler(action));
+
+        this.addGlobalAction(action);
+
+
     }
 
 

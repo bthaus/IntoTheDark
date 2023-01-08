@@ -69,6 +69,8 @@ Character character;
             case EQUIP: actor.equipArmament(global.universe.holder.getArmamentByID(y), Objects.requireNonNull(Slot.getSlot(x)));break;
             case JUMP: //same as move
             case MOVE: action.link();break;
+            //outsource it
+            case SPAWN: global.universe.spawnCharacterFromNetwork(arr,action);
         }
 
 
@@ -91,21 +93,20 @@ Character character;
     //example equip     EQUIP|2|slotID|32|0
     //example jump      JUMP|1|0|0|0
     //example open      OPEN|3| //tbd: entweder ItemID von gameobject oder x y koordinaten von item ID TODO: wenn cc entschieden hat wie sie gameobjects implementieren will
-    //example
+    //example spawn     SPAWN -1 700 700 3 0   -1 = global 700 700 =x and y 3=bodyID 0=characterDefIndex
     static long volume=0;
-    private String unimparse(Action msg) {
-       String str=msg.getType().toString().concat(" ").concat(Integer.toString(msg.getActor().getID())).concat(" ");
-       switch (msg.getType()){
-           case MOVE: //movedirection is stored in x  so no special case is neccessary. if optimized y could store if the hero starts moving or stops moving.
-           case EQUIP: //slot is stored in x, no special case neccessary
-           case OPEN: //tbd
-           case JUMP://nothing is stored in x and y in jump, it wont even be read
-           case ATTACK:str=str.concat(Integer.toString(msg.getX())).concat(" ").concat(Integer.toString(msg.getY())).concat(" ");break;
+    static public String unimparse(Action msg) {
+        //setting actorID and msgtype per default
+       String str=msg.getType().toString().concat(" ").concat(Integer.toString(msg.getActorID())).concat(" ");
+       //setting x and y per default
+        str=str.concat(Integer.toString(msg.getX())).concat(" ").concat(Integer.toString(msg.getY())).concat(" ");
 
-           //no special cases neccessary so far, making this kinda obsolete
+        //special cases
+        switch (msg.getType()){
+            case SPAWN:str=str.concat(msg.getSpawnedCharID() + " "+msg.getCharacterDef().getID()+" ");
+        }
 
-       }
-        str=str.concat(Integer.toString(msg.getActionID())).concat(" ");
+
        Log.n(str +" sent");
         Log.n("msgsize: "+ sizeof(str) +"        total volume: "+volume);
        return str.concat("\n");
