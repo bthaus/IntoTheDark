@@ -125,7 +125,6 @@ public class Action  {
     }
 
     public void link() {
-
         Character temp = (Character) actor.getUserData();
         if (!linked) temp.addAction(this);
         linked = true;

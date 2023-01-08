@@ -1,5 +1,5 @@
 package Types;
 
 public enum WeaponName {
-    TORCH, SHURIKEN
+    TORCH, ENEMYSHURIKEN, SHURIKEN
 }

@@ -117,6 +117,54 @@ public class WorldHolder {
         shuriken.setTexture(new Texture(Gdx.files.internal("shuriken.png")));
         armaments.put(WeaponName.SHURIKEN,shuriken);
 
+        final Armament enemyShuriken=new Armament();
+        enemyShuriken.setStandardThrowingWeaponHandler();
+        enemyShuriken.setName(WeaponName.ENEMYSHURIKEN);
+        enemyShuriken.setAttackDuration(350);
+        enemyShuriken.setSlot(Slot.RIGHTHAND);
+        enemyShuriken.setDamage(20);
+        enemyShuriken.setVelocity(1);
+        enemyShuriken.addAdditionalAction(new ActionHandler() {
+            @Override
+            public void before() {
+
+            }
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public STATE execute(float destinationX, float destinationY) {
+                int x,y;
+                x= (int) get(enemyShuriken.getWielder().getPosition().x)+150;
+                y= (int) get(enemyShuriken.getWielder().getPosition().y)+150;
+                Body bullet= global.universe.addEntity(x,y,1,1, UnitType.BULLET,"shuriken");
+                //todo: collision like in  https://stackoverflow.com/questions/17162837/disable-collision-completely-of-a-body-in-andengine-box2d
+                bullet.getFixtureList().get(0).setSensor(true);
+                Log.a("additional bullet shot");
+                Vector2 direction=new Vector2();
+                direction.x=0;
+                direction.y=10;
+                bullet.applyLinearImpulse(direction,bullet.getWorldCenter(),true);
+                return STATE.DONE;
+            }
+
+            @Override
+            public void after() {
+
+            }
+
+            @Override
+            public void perFrame(float x, float y) {
+
+            }
+        },500, TriggerType.ONATTACK);
+        enemyShuriken.setTexture(new Texture(Gdx.files.internal("shuriken.png")));
+
+        armaments.put(WeaponName.ENEMYSHURIKEN,enemyShuriken);
+
         Armament torch=new Armament();
         torch.setStandardTochHandler();
         torch.setName(WeaponName.TORCH);
@@ -133,6 +181,8 @@ public class WorldHolder {
     public void initEnemyDefs(){
         CharacterDef debugEnemy=new CharacterDef(1,100,"enemy1",UnitType.ENEMY);
         enemyDefMap.put(debugEnemy.getID(),debugEnemy);
+        CharacterDef wolf=new CharacterDef(1,100,"herowolf",UnitType.ENEMY);
+        enemyDefMap.put(wolf.getID(),wolf);
 
     }
 
@@ -154,7 +204,8 @@ public class WorldHolder {
                 //if the hosts spawns a character the id is -1, if it is received from network it is set
                 if(action.getSpawnedCharID()==-1) action.setSpawnedCharID(getCharacter(body).getID());
                 else getCharacter(body).setID(action.getSpawnedCharID());
-
+                Log.g("Character spawned with ID "+getCharacter(body).getID());
+                getCharacter(body).equipArmament(getArmamentByID(action.getCharacterDef().getWeaponID()),Slot.RIGHTHAND);
                 return STATE.NOTDONE;
             }
             //todo: set to execute again
@@ -184,6 +235,10 @@ public class WorldHolder {
 
             @Override
             public STATE execute(float destinationX, float destinationY) {
+                if(action.getSpawnedCharID()!=-1&&global.universe.getBodyByID(action.getSpawnedCharID())!=null){
+                    Log.g("tried to spawn character that is already defined");
+                    return STATE.DONE;
+                }
                 final Body body= global.universe.addEntity(action.getX(),action.getY(),action.getCharacterDef().getWidth(),action.getCharacterDef().getHeight(),action.getCharacterDef().getUnitType(),action.getCharacterDef().getTexture());
                 //if the hosts spawns a character the id is -1, if it is received from network it is set
                 if(action.getSpawnedCharID()==-1) action.setSpawnedCharID(getCharacter(body).getID());
@@ -223,7 +278,7 @@ public class WorldHolder {
                         TypeHolder.addTypeHolder(new TypeHolder(types, UnitType.HERO, HandlerType.TOUCHFLOOR));
                     }
                 });
-                return STATE.NOTDONE;
+                return STATE.DONE;
             }
             //todo: set to execute again
             @Override

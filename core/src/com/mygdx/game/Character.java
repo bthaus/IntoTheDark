@@ -21,7 +21,7 @@ public class Character {
     Stats stats;
     Equipment equipment;
     static int counter=0;
-    int ID;
+    int ID=-2;
 
     //code fields
     Friend friend=null;
@@ -69,6 +69,7 @@ public class Character {
     }
 
     public void equipArmament(Armament armament,Slot slot){
+        Log.g(unitType+" equips "+armament.name);
         armament.setWielder(body);
     }
 
@@ -198,6 +199,16 @@ public class Character {
 
     public Character(Body body) {
         this.ID=counter++;
+        this.body=body;
+        this.equipment=new Equipment();
+        this.equipment.rightHand =new Armament();
+
+    }
+    public Character(Body body, UnitType type) {
+        if(!type.equals(UnitType.BULLET)){
+            this.ID=counter++;
+        }
+
         this.body=body;
         this.equipment=new Equipment();
         this.equipment.rightHand =new Armament();

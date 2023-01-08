@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import Handler.TerrainCollisionHandler;
-import Handler.UnitCollisionHandler;
 import Types.*;
 import box2dLight.ConeLight;
 import box2dLight.PointLight;
@@ -40,7 +39,7 @@ public class Universe {
         for (Body body:bodies
         ) {
             if(getCharacter(body).getID()==characterID){
-                Log.g("found "+getCharacter(body).getUnitType());
+
                 return body;
             }
         }
@@ -131,30 +130,6 @@ public class Universe {
             }
         });
 
-        Body wolf = addEntity(700, 500, 250, 250, UnitType.ENEMY, "herowolf");
-        getCharacter(wolf).collisionHandler.setCustomUnitCollisionHandler(new UnitCollisionHandler() {
-            @Override
-            public void collideWith(Body hitter, Body b) {
-                Log.t("hit by "+getCharacter(hitter).getTexture().toString().replaceAll(".png",""));
-                if (!toRemove.contains(hitter)) toRemove.add(hitter);
-
-            }
-
-            @Override
-            public void detachFrom(Body hitter, Body b) {
-
-            }
-
-            @Override
-            public HandlerType getName() {
-                return HandlerType.ENEMYHIT;
-            }
-
-            @Override
-            public void setTypeCombination() {
-                TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET, UnitType.ENEMY, HandlerType.ENEMYHIT, true));
-            }
-        });
 
 
 
@@ -165,7 +140,7 @@ public class Universe {
 
     public boolean pressedA = false;
     public boolean pressedD = false;
-
+    public boolean fortest=false;
     public void getUserInput() {
 
         if (Gdx.input.isTouched()) {
@@ -176,6 +151,19 @@ public class Universe {
             int hy = (int) get(hero.getPosition().y) + y;
 
             heroChar.addAttackAction(hx, hy);
+
+            if(fortest){
+
+                Body wolf=getBodyByID(2);
+                x = Gdx.input.getX() - 400 - 75;
+                y = Gdx.input.getY() - (650 / 2) + 78;
+                hx = (int) get(wolf.getPosition().x) + x;
+                hy = (int) get(wolf.getPosition().y) + y;
+
+                getCharacter(wolf).addAttackAction(hx,hy);
+
+            }
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.X)) {
@@ -188,10 +176,11 @@ public class Universe {
         //todo: remove debug
         if(Gdx.input.isKeyPressed(Input.Keys.P)){
 
-            Action action=Action.createGlobalAction(700,700,ActionType.SPAWN);
-            action.setCharacterDef(holder.getCharacterDefByID(0));
-            action.setActionHandler(holder.getDefaultSpawnHandler(action));
-            addGlobalAction(action);
+           if(!fortest){
+               fortest=true;
+               spawnCharacter(700,700,1);
+           }
+
 
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
@@ -219,6 +208,14 @@ public class Universe {
         }
 
     }
+
+    private void spawnCharacter(int x,int y,int defID) {
+        Action action=Action.createGlobalAction(x,y,ActionType.SPAWN);
+        action.setCharacterDef(holder.getCharacterDefByID(defID));
+        action.setActionHandler(holder.getDefaultSpawnHandler(action));
+        addGlobalAction(action);
+    }
+
     LinkedList<Action>blockedActions=new LinkedList<>();
     LinkedList<Action>doneActions=new LinkedList<>();
     private void doActions(){
@@ -355,6 +352,7 @@ public class Universe {
         PolygonShape dynamic = new PolygonShape();
         dynamic.setAsBox(set(width), set(height));
 
+
         FixtureDef fixtureDef = new FixtureDef();
 
         switch (type) {
@@ -380,10 +378,10 @@ public class Universe {
         body.createFixture(fixtureDef);
 
         Texture text = new Texture(Gdx.files.internal(texture.concat(".png")));
-        Character character = new Character(body);
+        Character character = new Character(body,type);
 
         character.setTexture(text);
-        character.setUnitType(type);
+
         body.setUserData(character);
         putActiveBody(getCharacter(body));
 

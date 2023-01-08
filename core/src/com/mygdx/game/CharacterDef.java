@@ -3,6 +3,7 @@ package com.mygdx.game;
 import Types.UnitType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import util.Log;
 
 public class CharacterDef {
     int ID,weaponID,HP,width,height;
@@ -16,8 +17,10 @@ public class CharacterDef {
         this.weaponID = weaponID;
         this.HP = HP;
         Texture temp=new Texture(Gdx.files.internal("shuriken.png"));
-        this.width = temp.getWidth();
-        this.height = temp.getHeight();
+        //todo: fix this weird bug once we actually see whats going on
+        this.width = temp.getWidth()*2;
+        this.height = temp.getHeight()*5;
+        Log.g(this.width+" and height"+ this.height);
         this.texture = texture;
         this.unitType=type;
     }
