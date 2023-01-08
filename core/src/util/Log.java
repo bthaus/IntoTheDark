@@ -12,4 +12,8 @@ public class Log {
     public static void t(String msg) {
         System.out.println(msg);
     }
+
+    public static void g(String global_action_handlestart) {
+        System.out.println("GLOBAL: "+global_action_handlestart);
+    }
 }

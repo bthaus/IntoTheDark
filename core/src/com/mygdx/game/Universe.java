@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import Handler.ActionHandler;
 import Handler.TerrainCollisionHandler;
 import Handler.UnitCollisionHandler;
 import Types.*;
@@ -21,6 +22,7 @@ import util.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static util.utilMethods.*;
 
@@ -31,6 +33,8 @@ public class Universe {
     LinkedList<Body> toRemove = new LinkedList<>();
     LinkedList<ConeLight> coneLights = new LinkedList<>();
     Map<Integer, Character> activeBodies = new HashMap<>();
+    LinkedList<Action> actionQueue=new LinkedList<>();
+    ConcurrentLinkedDeque<Action>actionsToAdd=new ConcurrentLinkedDeque<>();
 
     public Body getBodyByID(int characterID) {
         return hero;
@@ -144,7 +148,33 @@ public class Universe {
                 TypeHolder.addTypeHolder(new TypeHolder(UnitType.BULLET, UnitType.ENEMY, HandlerType.ENEMYHIT, true));
             }
         });
+        Action action=new Action();
+        action.setActionHandler(new ActionHandler() {
+            @Override
+            public void before() {
+                Log.g("global action handlestart");
+            }
 
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public STATE execute(float destinationX, float destinationY) {
+                Log.g("execute");
+                return STATE.NOTDONE;
+            }
+
+            @Override
+            public void after() {
+            Log.g("after");
+            }
+        });
+        action.setDuration(5000);
+        action.setType(ActionType.GLOBAL);
+        this.addGlobalAction(action);
+        this.addGlobalAction(action);
 
         addObject(250, 0, 2000, 5, 0, TerrainType.FLOOR, "hero");
       //  addObject(600, 0, 1, 500, 0, TerrainType.WALL, "shuriken");
@@ -199,10 +229,47 @@ public class Universe {
         }
 
     }
+    LinkedList<Action>blockedActions=new LinkedList<>();
+    LinkedList<Action>doneActions=new LinkedList<>();
+    private void doActions(){
+        actionQueue.addAll(actionsToAdd);
+        actionsToAdd.clear();
+        //check for long actions
+        for (Action action :blockedActions
+             ) {
+            if(action.watch.active()&&action.watch.done())
+            {
+                action.handler.after();
+                doneActions.add(action);
+            }
+        }
+        //remove done actions
+        for (Action action:doneActions
+             ) {
+            blockedActions.remove(action);
+        }
+        //do regular global actoins
+        for (Action action:actionQueue
+             ) {
+            if(global.host!=null&&action.tosend) global.host.addAction(action);
+            action.handler.before();
+            action.handler.onStart();
+            if(action.handler.execute(action.x,action.y).equals(STATE.NOTDONE)){
+                action.watch=new Watch();
+                action.watch.start(action.duration);
+                blockedActions.add(action);
+            }else{
+                action.handler.after();
+            }
+
+        }
+        actionQueue.clear();
+    }
 
     public void doStep() {
         Array<Body> bodies = new Array<>();
         holder.world.getBodies(bodies);
+        this.doActions();
         for (Body selected : bodies
         ) {
             Character temp = (Character) selected.getUserData();
@@ -320,6 +387,7 @@ public class Universe {
 
         Texture text = new Texture(Gdx.files.internal(texture.concat(".png")));
         Character character = new Character(body);
+
         character.setTexture(text);
         character.setUnitType(type);
         body.setUserData(character);
@@ -350,6 +418,11 @@ public class Universe {
 
         ground.setUserData(chara);
         return ground;
+    }
+
+
+    public void addGlobalAction(Action action){
+        this.actionsToAdd.offer(action);
     }
 
 

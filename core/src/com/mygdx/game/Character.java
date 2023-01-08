@@ -37,56 +37,36 @@ public class Character {
 
     //handlers
     CollisionHandler collisionHandler=new CollisionHandler(this);
-    ActionHandler    onSpawn=new ActionHandler() {
-        @Override
-        public void before() {
 
-        }
 
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public STATE execute(float destinationX, float destinationY) {
-            return null;
-        }
-
-        @Override
-        public void after() {
-
-        }
-    };
-    ActionHandler    onDeath=new ActionHandler() {
-        @Override
-        public void before() {
-
-        }
-
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public STATE execute(float destinationX, float destinationY) {
-            global.universe.toRemove.add(body);
-            return STATE.DONE;
-        }
-
-        @Override
-        public void after() {
-
-        }
-    };
 
     //lists
     LinkedList<Action>actions=new LinkedList<>();
     LinkedList<Action>actionsToAdd=new LinkedList<>();
     LinkedList<Body>touchedFloors=new LinkedList<>();
     LinkedList<ActionType>actionFilter=new LinkedList<>();
+    LinkedList<ActionHandler>onSpawn=new LinkedList<>();
+    LinkedList<ActionHandler>onDeath=new LinkedList<>();
 
+    public void spawn(int x, int y){
+        for (ActionHandler onspawn:onSpawn
+             ) {
+            Action action=Action.createAction(ActionType.SPAWN,body);
+            action.setActionHandler(onspawn);
+            action.setX(x);
+            action.setY(y);
+            action.link();
+        }
+    }
+    public void die(){
+        for (ActionHandler ondeath:onDeath
+        ) {
+            Action action=Action.createAction(ActionType.DIE,body);
+            action.tosend=false;
+            action.setActionHandler(ondeath);
+            action.link();
+        }
+    }
 
     public void equipArmament(Armament armament,Slot slot){
         armament.setWielder(body);
@@ -127,10 +107,10 @@ public class Character {
                 continue;
             }
                 //send action
-                if(global.host!=null&&action.tosend) global.host.addAction(action);
+            if(global.host!=null&&action.tosend) global.host.addAction(action);
 
 
-                action.handler.before();
+            action.handler.before();
                 action.handler.onStart();
                 state=action.handler.execute(action.x, action.y);
 
@@ -221,6 +201,10 @@ public class Character {
         this.body=body;
         this.equipment=new Equipment();
         this.equipment.rightHand =new Armament();
+
+    }
+    public void addSpawnActionHandler(ActionHandler handler){
+        onSpawn.add(handler);
     }
 
     public void addAction(Action action){

@@ -5,6 +5,7 @@ import Types.*;
 import com.badlogic.gdx.physics.box2d.Body;
 import util.Log;
 import util.PhysicsTable;
+import util.Watch;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -15,6 +16,7 @@ import static util.utilMethods.*;
 public class Action implements Serializable {
     //util fields
     int actionID = 0;
+    public Watch watch;
     Body actor;
     boolean tosend = true;
     Direction direction;
@@ -185,5 +187,17 @@ public class Action implements Serializable {
 
     public Character getActor() {
         return getCharacter(actor);
+    }
+
+    public int getActionID() {
+        return actionID;
+    }
+
+    public void setActionID(int actionID) {
+        this.actionID = actionID;
+    }
+
+    public void setType(ActionType global) {
+        this.type=global;
     }
 }

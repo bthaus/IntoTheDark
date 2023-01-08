@@ -105,7 +105,8 @@ Character character;
            //no special cases neccessary so far, making this kinda obsolete
 
        }
-
+        str=str.concat(Integer.toString(msg.getActionID())).concat(" ");
+       Log.n(str +" sent");
         Log.n("msgsize: "+ sizeof(str) +"        total volume: "+volume);
        return str.concat("\n");
 
